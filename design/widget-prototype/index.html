@@ -1,0 +1,1155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Student Assistant — Widget Prototype</title>
+  <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --primary-color: #ff881a; --on-primary: #ffffff; }
+    body { font-family: 'Lato', sans-serif; background: #f0f2f5; color: #1f2023; }
+
+    /* ═══════════════════════════════════════
+       LAYOUT: two-column — portal sim + spec
+    ═══════════════════════════════════════ */
+    .layout {
+      display: grid;
+      grid-template-columns: 1fr 380px;
+      min-height: 100vh;
+    }
+
+    /* ─── Left: portal simulation ─── */
+    .portal-sim {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .portal-bg {
+      width: 100%; height: 100%;
+      background: #f8f9fa;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Portal top nav */
+    .portal-nav {
+      background: #fff;
+      border-bottom: 1px solid #e5e7eb;
+      padding: 0 32px;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+    .nav-logo {
+      display: flex; align-items: center; gap: 10px;
+      font-size: 15px; font-weight: 900; color: #1f2023; letter-spacing: -0.3px;
+    }
+    .nav-logo-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--primary-color); }
+    .nav-links { display: flex; gap: 28px; font-size: 13px; color: #6b7280; }
+    .nav-links span { cursor: pointer; }
+    .nav-links span.active { color: #1f2023; font-weight: 700; }
+    .nav-right { display: flex; align-items: center; gap: 16px; }
+    .nav-avatar { width: 32px; height: 32px; border-radius: 50%; background: #e0e7ff; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: #4f46e5; }
+
+    /* Portal content area */
+    .portal-content {
+      flex: 1;
+      padding: 40px 32px;
+      overflow-y: auto;
+    }
+    .page-title { font-size: 22px; font-weight: 900; margin-bottom: 4px; }
+    .page-sub { font-size: 13px; color: #6b7280; margin-bottom: 32px; }
+
+    /* Dummy cards */
+    .card-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 32px; }
+    .card {
+      background: #fff; border-radius: 14px; padding: 20px;
+      border: 1px solid #e5e7eb;
+    }
+    .card-thumb { width: 100%; height: 80px; border-radius: 8px; background: #f3f4f6; margin-bottom: 12px; overflow: hidden; }
+    .card-thumb-fill { width: 100%; height: 100%; }
+    .card-label { font-size: 12px; font-weight: 700; margin-bottom: 4px; }
+    .card-sub { font-size: 11px; color: #9ca3af; }
+    .card-progress { height: 4px; background: #f3f4f6; border-radius: 99px; margin-top: 12px; overflow: hidden; }
+    .card-progress-fill { height: 100%; border-radius: 99px; background: var(--primary-color); }
+
+    /* ─── Floating widget button ─── */
+    .fab-wrap {
+      position: absolute;
+      bottom: 28px; right: 28px;
+      display: flex; flex-direction: column; align-items: flex-end; gap: 10px;
+      z-index: 100;
+    }
+
+    /* Overdue badge tooltip */
+    .fab-badge-tooltip {
+      background: #fff;
+      border: 1px solid #fee2e2;
+      border-radius: 10px;
+      padding: 8px 12px;
+      font-size: 12px;
+      color: #dc2626;
+      font-weight: 700;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.10);
+      display: flex; align-items: center; gap: 6px;
+      animation: fadeSlideUp 0.25s ease;
+      white-space: nowrap;
+    }
+    .fab-badge-tooltip svg { flex-shrink: 0; }
+
+    .fab {
+      width: 56px; height: 56px;
+      border-radius: 50%;
+      background: var(--primary-color);
+      border: none; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 4px 20px color-mix(in srgb, var(--primary-color) 45%, transparent);
+      transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+      position: relative;
+      color: var(--on-primary);
+    }
+    .fab:hover {
+      transform: scale(1.08);
+      box-shadow: 0 6px 28px color-mix(in srgb, var(--primary-color) 55%, transparent);
+    }
+    .fab:active { transform: scale(0.96); }
+    .fab.open { background: #1f2023; box-shadow: 0 4px 20px rgba(0,0,0,0.35); }
+
+
+    /* Neural Spark icon */
+    .fab svg { width: 26px; height: 26px; }
+
+    /* ═══════════════════════════════════════
+       CHAT PANEL
+    ═══════════════════════════════════════ */
+    .chat-panel {
+      position: absolute;
+      bottom: 96px; right: 28px;
+      width: 360px;
+      max-height: calc(100vh - 140px);
+      background: #fff;
+      border-radius: 20px;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.16);
+      display: flex; flex-direction: column;
+      overflow: hidden;
+      z-index: 99;
+      transition: opacity 0.2s ease, transform 0.2s ease;
+      transform-origin: bottom right;
+    }
+    .chat-panel.hidden {
+      opacity: 0; pointer-events: none; transform: scale(0.92);
+    }
+    .chat-panel.visible {
+      opacity: 1; pointer-events: all; transform: scale(1);
+    }
+
+    /* Panel header */
+    .panel-header {
+      padding: 16px 20px 14px;
+      border-bottom: 1px solid #f3f4f6;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-shrink: 0;
+    }
+    .panel-header-left { display: flex; align-items: center; gap: 10px; }
+    .panel-icon {
+      width: 36px; height: 36px; border-radius: 10px;
+      background: var(--primary-color);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--on-primary);
+      flex-shrink: 0;
+    }
+    .panel-icon svg { width: 20px; height: 20px; }
+    .panel-title { font-size: 14px; font-weight: 900; }
+    .panel-status { font-size: 11px; color: #10b981; font-weight: 700; display: flex; align-items: center; gap: 4px; }
+    .panel-status::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: #10b981; display: inline-block; }
+    .panel-actions { display: flex; gap: 4px; }
+    .panel-btn {
+      width: 28px; height: 28px; border-radius: 8px; border: none;
+      background: transparent; cursor: pointer; color: #9ca3af;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.15s, color 0.15s;
+    }
+    .panel-btn:hover { background: #f3f4f6; color: #1f2023; }
+    .panel-btn svg { width: 16px; height: 16px; }
+
+    /* Overdue alert banner — KC static notification: icon + colored text, NO background fill */
+    .overdue-banner {
+      margin: 12px 14px 0;
+      display: flex; align-items: flex-start; gap: 8px;
+      flex-shrink: 0;
+    }
+    .overdue-banner svg { color: var(--primary-color); flex-shrink: 0; margin-top: 1px; width: 14px; height: 14px; }
+    .overdue-text { font-size: 14px; font-weight: 400; color: var(--primary-color); line-height: 20px; }
+    .overdue-link { cursor: pointer; text-decoration: underline; }
+
+    /* Messages area */
+    .messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 14px;
+      display: flex; flex-direction: column; gap: 12px;
+      min-height: 0;
+    }
+    .messages::-webkit-scrollbar { width: 4px; }
+    .messages::-webkit-scrollbar-thumb { background: #e5e7eb; border-radius: 4px; }
+
+    /* Suggested prompts (initial state) */
+    .prompts-label { font-size: 11px; font-weight: 700; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; }
+    .prompts { display: flex; flex-direction: column; gap: 6px; }
+    .prompt-chip {
+      background: #f8f9fa; border: 1px solid #e5e7eb;
+      border-radius: 10px; padding: 9px 12px;
+      font-size: 12px; color: #374151; cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+      text-align: left;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .prompt-chip:hover { background: #fff7ed; border-color: #fed7aa; color: #1f2023; }
+    .prompt-chip svg { color: var(--primary-color); flex-shrink: 0; width: 14px; height: 14px; }
+
+    /* Message bubbles */
+    .msg { display: flex; flex-direction: column; gap: 3px; }
+    .msg.user { align-items: flex-end; }
+    .msg.assistant { align-items: flex-start; }
+    .bubble {
+      max-width: 85%;
+      padding: 9px 13px;
+      border-radius: 14px;
+      font-size: 13px; line-height: 1.55;
+    }
+    /* User — secondary tint, primary orange reserved for buttons */
+    .msg.user .bubble {
+      background: #FFF3E8;
+      color: #1f2023;
+      border-bottom-right-radius: 4px;
+    }
+    /* Bot — plain white */
+    .msg.assistant .bubble {
+      background: #fff;
+      color: #1f2023;
+      border-bottom-left-radius: 4px;
+    }
+    .msg-time { font-size: 10px; color: #d1d5db; padding: 0 4px; }
+
+    /* Course recommendation cards inside bubble */
+    .rec-cards { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
+    .rec-card {
+      background: #fff; border: 1px solid #e5e7eb; border-radius: 10px;
+      padding: 10px 12px;
+      display: flex; align-items: center; justify-content: space-between; gap: 8px;
+    }
+    .rec-card-info { flex: 1; min-width: 0; }
+    .rec-card-title {
+      font-size: 12px; font-weight: 700; color: #1f2023;
+      overflow: hidden; display: -webkit-box;
+      -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+      line-height: 1.35;
+    }
+    .rec-card-reason { font-size: 11px; color: #6b7280; margin-top: 2px; line-height: 1.4; }
+    /* "Go to course" — Secondary, eye icon + text, #FFF3E8 bg */
+    .rec-card-link {
+      flex-shrink: 0;
+      background: #FFF3E8; color: var(--primary-color);
+      border: none; border-radius: 10px;
+      font-size: 11px; font-weight: 400; padding: 6px 10px;
+      cursor: pointer; white-space: nowrap;
+      display: flex; align-items: center; gap: 4px;
+      transition: background 0.15s;
+      font-family: 'Lato', sans-serif;
+    }
+    .rec-card-link svg { width: 12px; height: 12px; flex-shrink: 0; }
+    .rec-card-link:hover { background: color-mix(in srgb, var(--primary-color) 15%, white); }
+
+    /* Typing indicator */
+    .typing { display: flex; gap: 4px; align-items: center; padding: 9px 13px; background: #f8f9fa; border-radius: 14px; border-bottom-left-radius: 4px; width: fit-content; }
+    .typing span { width: 6px; height: 6px; border-radius: 50%; background: #d1d5db; animation: bounce 1.2s infinite; }
+    .typing span:nth-child(2) { animation-delay: 0.2s; }
+    .typing span:nth-child(3) { animation-delay: 0.4s; }
+
+    /* Streaming cursor */
+    .stream-cursor {
+      display: inline-block; width: 2px; height: 13px;
+      background: #6b7280; margin-left: 2px;
+      animation: blink 0.8s infinite;
+      vertical-align: text-bottom;
+    }
+
+    /* Input area */
+    .input-area {
+      padding: 12px 14px;
+      border-top: 1px solid #f3f4f6;
+      display: flex; align-items: flex-end; gap: 8px;
+      flex-shrink: 0;
+    }
+    .input-wrap {
+      flex: 1;
+      background: #f8f9fa; border: 1px solid #e5e7eb;
+      border-radius: 12px;
+      display: flex; align-items: flex-end;
+      padding: 8px 12px;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .input-wrap:focus-within { border-color: var(--primary-color); background: #fff; }
+    .input-field {
+      flex: 1; border: none; outline: none; background: transparent;
+      font-size: 13px; font-family: 'Lato', sans-serif;
+      resize: none; line-height: 1.5;
+      max-height: 80px; min-height: 20px;
+      color: #1f2023;
+    }
+    .input-field::placeholder { color: #9ca3af; }
+    .send-btn {
+      width: 36px; height: 36px; border-radius: 10px;
+      background: var(--primary-color); border: none; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--on-primary);
+      transition: background 0.15s, transform 0.1s;
+      flex-shrink: 0;
+    }
+    .send-btn:hover { background: color-mix(in srgb, var(--primary-color) 80%, black); }
+    .send-btn:active { transform: scale(0.93); }
+    .send-btn svg { width: 16px; height: 16px; }
+    .send-btn:disabled { background: #e5e7eb; color: #9ca3af; cursor: default; }
+
+    /* Input footer note */
+    .input-footer { text-align: center; font-size: 10px; color: #d1d5db; padding: 0 0 10px; flex-shrink: 0; }
+
+    /* ═══════════════════════════════════════
+       RIGHT PANEL: Spec sheet
+    ═══════════════════════════════════════ */
+    .spec-panel {
+      background: #fff;
+      border-left: 1px solid #e5e7eb;
+      display: flex; flex-direction: column;
+      overflow-y: auto;
+    }
+    .spec-header {
+      padding: 20px 24px 16px;
+      border-bottom: 1px solid #f3f4f6;
+      position: sticky; top: 0; background: #fff; z-index: 10;
+    }
+    .spec-header h1 { font-size: 16px; font-weight: 900; }
+    .spec-header p { font-size: 12px; color: #9ca3af; margin-top: 2px; }
+
+    .spec-section { padding: 20px 24px; border-bottom: 1px solid #f3f4f6; }
+    .spec-section:last-child { border-bottom: none; }
+    .spec-section h2 { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #9ca3af; margin-bottom: 14px; }
+
+    /* State row */
+    .states { display: flex; gap: 12px; flex-wrap: wrap; }
+    .state-item { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+    .state-fab {
+      width: 56px; height: 56px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      color: #fff;
+    }
+    .state-fab.default { background: var(--primary-color); box-shadow: 0 4px 16px rgba(244,130,31,0.40); }
+    .state-fab.hover { background: var(--primary-color); box-shadow: 0 6px 24px color-mix(in srgb, var(--primary-color) 55%, transparent); transform: scale(1.08); }
+    .state-fab.active { background: color-mix(in srgb, var(--primary-color) 80%, black); box-shadow: 0 2px 8px color-mix(in srgb, var(--primary-color) 30%, transparent); transform: scale(0.96); }
+    .state-fab.open { background: #1f2023; box-shadow: 0 4px 16px rgba(0,0,0,0.30); }
+    .state-fab.disabled { background: #e5e7eb; color: #9ca3af; box-shadow: none; }
+    .state-fab svg { width: 26px; height: 26px; }
+    .state-label { font-size: 10px; color: #9ca3af; text-align: center; }
+
+    /* Color row */
+    .color-row { display: flex; flex-direction: column; gap: 8px; }
+    .color-item { display: flex; align-items: center; gap: 10px; }
+    .color-swatch { width: 20px; height: 20px; border-radius: 5px; border: 1px solid rgba(0,0,0,0.08); flex-shrink: 0; }
+    .color-label { font-size: 12px; color: #374151; font-weight: 700; }
+    .color-hex { font-size: 11px; color: #9ca3af; font-family: 'Courier New', monospace; }
+
+    /* Spec list */
+    .spec-list { display: flex; flex-direction: column; gap: 8px; }
+    .spec-row { display: flex; align-items: flex-start; gap: 10px; font-size: 12px; }
+    .spec-key { color: #6b7280; min-width: 100px; flex-shrink: 0; }
+    .spec-val { color: #1f2023; font-weight: 700; }
+
+    /* Icon size grid */
+    .icon-sizes { display: flex; align-items: flex-end; gap: 16px; }
+    .icon-size-item { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+    .icon-size-bg {
+      background: var(--primary-color); border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      color: #fff;
+    }
+    .icon-size-label { font-size: 10px; color: #9ca3af; }
+
+    /* Adaptivity demo */
+    .adapt-row { display: flex; gap: 8px; flex-wrap: wrap; }
+    .adapt-item {
+      width: 52px; height: 52px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      border: 2px solid transparent;
+    }
+    .adapt-item.light-bg { border-color: #e5e7eb; }
+
+    /* Annotations */
+    .anno { font-size: 11px; color: #6b7280; line-height: 1.6; }
+    .anno strong { color: #374151; }
+
+    /* ═══ Animations ═══ */
+    .color-demo-btn {
+      width: 28px; height: 28px; border-radius: 50%;
+      border: 3px solid transparent; cursor: pointer;
+      transition: transform 0.15s, border-color 0.15s;
+      flex-shrink: 0;
+    }
+    .color-demo-btn:hover { transform: scale(1.15); }
+    .color-demo-btn.active { border-color: #1f2023; }
+
+    @keyframes bounce {
+      0%, 60%, 100% { transform: translateY(0); }
+      30% { transform: translateY(-4px); }
+    }
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
+    }
+    @keyframes fadeSlideUp {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes panelIn {
+      from { opacity: 0; transform: scale(0.90); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    /* Scenario tabs */
+    .tabs { display: flex; gap: 6px; margin-bottom: 20px; }
+    .tab {
+      padding: 6px 14px; border-radius: 99px; font-size: 12px; font-weight: 700;
+      cursor: pointer; border: 1.5px solid #e5e7eb; color: #6b7280; background: #fff;
+      transition: all 0.15s;
+    }
+    .tab.active { background: var(--primary-color); border-color: var(--primary-color); color: var(--on-primary); }
+    .tab:hover:not(.active) { border-color: var(--primary-color); color: var(--primary-color); }
+
+    /* Scenario descriptions */
+    .scenario-desc {
+      font-size: 12px; color: #6b7280; line-height: 1.6;
+      background: #f8f9fa; border-radius: 10px; padding: 10px 12px; margin-bottom: 16px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="layout">
+
+  <!-- ═══ LEFT: Portal simulation ═══ -->
+  <div class="portal-sim">
+    <div class="portal-bg" id="portalBg">
+
+      <!-- Nav -->
+      <nav class="portal-nav">
+        <div class="nav-logo">
+          <div class="nav-logo-dot"></div>
+          KnowledgeCity Portal
+        </div>
+        <div class="nav-links">
+          <span class="active">Library</span>
+          <span>My Assignments</span>
+          <span>Reports</span>
+        </div>
+        <div class="nav-right">
+          <div class="nav-avatar">EK</div>
+        </div>
+      </nav>
+
+      <!-- Content -->
+      <div class="portal-content">
+        <div class="page-title">Browse Courses</div>
+        <div class="page-sub">Explore your assigned and recommended courses</div>
+
+        <div class="card-grid">
+          <div class="card">
+            <div class="card-thumb">
+              <svg class="card-thumb-fill" viewBox="0 0 200 80" fill="none"><rect width="200" height="80" fill="#FFF7ED"/><rect x="16" y="20" width="80" height="8" rx="4" fill="#FED7AA"/><rect x="16" y="34" width="56" height="6" rx="3" fill="#FDE8CA"/><rect x="16" y="48" width="64" height="6" rx="3" fill="#FDE8CA"/></svg>
+            </div>
+            <div class="card-label">Excel for Business Professionals</div>
+            <div class="card-sub">Data & Analytics · 4h 20m</div>
+            <div class="card-progress"><div class="card-progress-fill" style="width:68%"></div></div>
+          </div>
+          <div class="card">
+            <div class="card-thumb">
+              <svg class="card-thumb-fill" viewBox="0 0 200 80" fill="none"><rect width="200" height="80" fill="#EFF6FF"/><rect x="16" y="20" width="72" height="8" rx="4" fill="#BFDBFE"/><rect x="16" y="34" width="48" height="6" rx="3" fill="#DBEAFE"/><rect x="16" y="48" width="60" height="6" rx="3" fill="#DBEAFE"/></svg>
+            </div>
+            <div class="card-label">Leadership Essentials</div>
+            <div class="card-sub">Management · 3h 15m</div>
+            <div class="card-progress"><div class="card-progress-fill" style="width:20%"></div></div>
+          </div>
+          <div class="card">
+            <div class="card-thumb">
+              <svg class="card-thumb-fill" viewBox="0 0 200 80" fill="none"><rect width="200" height="80" fill="#F0FDF4"/><rect x="16" y="20" width="88" height="8" rx="4" fill="#BBF7D0"/><rect x="16" y="34" width="52" height="6" rx="3" fill="#DCFCE7"/><rect x="16" y="48" width="68" height="6" rx="3" fill="#DCFCE7"/></svg>
+            </div>
+            <div class="card-label">Project Management Fundamentals</div>
+            <div class="card-sub">Business · 5h 40m</div>
+            <div class="card-progress"><div class="card-progress-fill" style="width:0%"></div></div>
+          </div>
+        </div>
+
+        <!-- Dummy rows -->
+        <div style="background:#fff;border-radius:14px;padding:20px;border:1px solid #e5e7eb;">
+          <div style="font-size:14px;font-weight:700;margin-bottom:16px;">Assigned Courses</div>
+          <div style="display:flex;flex-direction:column;gap:12px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #f3f4f6;">
+              <div>
+                <div style="font-size:13px;font-weight:700;">Cybersecurity Awareness</div>
+                <div style="font-size:11px;color:#ef4444;font-weight:700;margin-top:2px;">⚠ Overdue · Due Apr 8</div>
+              </div>
+              <button style="background:#FFF7ED;color:var(--primary-color);border:1px solid #FED7AA;border-radius:8px;padding:6px 14px;font-size:12px;font-weight:700;cursor:pointer;">Start</button>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;">
+              <div>
+                <div style="font-size:13px;font-weight:700;">Time Management at Work</div>
+                <div style="font-size:11px;color:#6b7280;margin-top:2px;">Due Apr 22</div>
+              </div>
+              <button style="background:#f3f4f6;color:#374151;border:none;border-radius:8px;padding:6px 14px;font-size:12px;font-weight:700;cursor:pointer;">Continue</button>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /portal-content -->
+    </div><!-- /portal-bg -->
+
+    <!-- ─── FAB ─── -->
+    <div class="fab-wrap" id="fabWrap">
+      <button class="fab" id="fabBtn" title="AI Student Assistant">
+        <!-- Neural Spark icon -->
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Center dot -->
+          <circle cx="12" cy="12" r="2.2" fill="currentColor"/>
+          <!-- Top ray — longest -->
+          <line x1="12" y1="3" x2="12" y2="7.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+          <!-- Bottom ray -->
+          <line x1="12" y1="16.5" x2="12" y2="21" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+          <!-- Right ray -->
+          <line x1="16.5" y1="12" x2="21" y2="12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+          <!-- Left ray -->
+          <line x1="3" y1="12" x2="7.5" y2="12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+          <!-- Top-right ray — medium -->
+          <line x1="15.3" y1="8.7" x2="17.7" y2="6.3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          <!-- Bottom-left ray — medium -->
+          <line x1="8.7" y1="15.3" x2="6.3" y2="17.7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          <!-- Top-left ray — short -->
+          <line x1="8.7" y1="8.7" x2="7" y2="7" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+          <!-- Bottom-right ray — short -->
+          <line x1="15.3" y1="15.3" x2="17" y2="17" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- ─── Chat Panel ─── -->
+    <div class="chat-panel hidden" id="chatPanel">
+
+      <!-- Header -->
+      <div class="panel-header">
+        <div class="panel-header-left">
+          <div class="panel-icon">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="12" cy="12" r="2.2" fill="currentColor"/>
+              <line x1="12" y1="3.5" x2="12" y2="7.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+              <line x1="12" y1="16.5" x2="12" y2="20.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+              <line x1="16.5" y1="12" x2="20.5" y2="12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+              <line x1="3.5" y1="12" x2="7.5" y2="12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+              <line x1="15.3" y1="8.7" x2="17.7" y2="6.3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+              <line x1="8.7" y1="15.3" x2="6.3" y2="17.7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+              <line x1="8.7" y1="8.7" x2="7" y2="7" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+              <line x1="15.3" y1="15.3" x2="17" y2="17" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div>
+            <div class="panel-title">AI Student Assistant</div>
+            <div class="panel-status">Online</div>
+          </div>
+        </div>
+        <div class="panel-actions">
+          <button class="panel-btn" id="minimizeBtn" title="Minimize">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </button>
+          <button class="panel-btn" id="closeBtn" title="Close">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Overdue banner -->
+      <div class="overdue-banner" id="overdueBanner">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <div class="overdue-text">
+          <strong>1 overdue assignment:</strong> Cybersecurity Awareness was due Apr 8.
+          <span class="overdue-link">Go to assignment →</span>
+        </div>
+      </div>
+
+      <!-- Messages -->
+      <div class="messages" id="messages">
+        <!-- Initial state — suggested prompts -->
+        <div id="promptsContainer">
+          <div class="prompts-label">Suggested for you</div>
+          <div class="prompts">
+            <button class="prompt-chip" onclick="sendPrompt(this, 'What should I learn next?')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2L13.5 9.5L21 12L13.5 14.5L12 22L10.5 14.5L3 12L10.5 9.5Z"/></svg>
+              What should I learn next?
+            </button>
+            <button class="prompt-chip" onclick="sendPrompt(this, 'What are my upcoming deadlines?')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              What are my upcoming deadlines?
+            </button>
+            <button class="prompt-chip" onclick="sendPrompt(this, 'How do I improve my Excel skills?')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              How do I improve my Excel skills?
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Input area -->
+      <div class="input-area">
+        <div class="input-wrap">
+          <textarea class="input-field" id="inputField" placeholder="Ask anything about your courses…" rows="1"
+            onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+        </div>
+        <button class="send-btn" id="sendBtn" onclick="handleSend()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        </button>
+      </div>
+      <div class="input-footer">Conversations are private and not used for training</div>
+
+    </div><!-- /chat-panel -->
+
+  </div><!-- /portal-sim -->
+
+
+  <!-- ═══ RIGHT: Spec sheet ═══ -->
+  <div class="spec-panel">
+
+    <div class="spec-header">
+      <h1>AI Student Assistant — Widget Spec</h1>
+      <p>Design prototype · Neural Spark icon</p>
+    </div>
+
+    <!-- Scenario switcher -->
+    <div class="spec-section">
+      <h2>Demo scenarios</h2>
+      <div class="tabs">
+        <div class="tab active" onclick="setScenario('recommendations')">Recommendations</div>
+        <div class="tab" onclick="setScenario('deadlines')">Deadlines</div>
+        <div class="tab" onclick="setScenario('content')">Content Q&amp;A</div>
+      </div>
+      <div class="scenario-desc" id="scenarioDesc">
+        Click <strong>"What should I learn next?"</strong> in the chat to see a simulated recommendation response with course cards and links.
+      </div>
+      <button onclick="resetChat()" style="font-size:12px;color:#9ca3af;background:none;border:none;cursor:pointer;padding:0;text-decoration:underline;">↺ Reset chat</button>
+    </div>
+
+    <!-- FAB states -->
+    <div class="spec-section">
+      <h2>Button states</h2>
+      <div class="states">
+        <div class="state-item">
+          <div class="state-fab default">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+              <circle cx="12" cy="12" r="2.2" fill="currentColor"/>
+              <line x1="12" y1="3" x2="12" y2="7.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+              <line x1="12" y1="16.5" x2="12" y2="21" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+              <line x1="16.5" y1="12" x2="21" y2="12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+              <line x1="3" y1="12" x2="7.5" y2="12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+              <line x1="15.3" y1="8.7" x2="17.7" y2="6.3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+              <line x1="8.7" y1="15.3" x2="6.3" y2="17.7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+              <line x1="8.7" y1="8.7" x2="7" y2="7" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+              <line x1="15.3" y1="15.3" x2="17" y2="17" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div class="state-label">Default</div>
+        </div>
+        <div class="state-item">
+          <div class="state-fab hover">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+              <circle cx="12" cy="12" r="2.2" fill="currentColor"/>
+              <line x1="12" y1="3" x2="12" y2="7.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+              <line x1="12" y1="16.5" x2="12" y2="21" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+              <line x1="16.5" y1="12" x2="21" y2="12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+              <line x1="3" y1="12" x2="7.5" y2="12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+              <line x1="15.3" y1="8.7" x2="17.7" y2="6.3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+              <line x1="8.7" y1="15.3" x2="6.3" y2="17.7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+              <line x1="8.7" y1="8.7" x2="7" y2="7" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+              <line x1="15.3" y1="15.3" x2="17" y2="17" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div class="state-label">Hover<br>scale(1.08)</div>
+        </div>
+        <div class="state-item">
+          <div class="state-fab active">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+              <circle cx="12" cy="12" r="2.2" fill="currentColor"/>
+              <line x1="12" y1="3" x2="12" y2="7.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+              <line x1="12" y1="16.5" x2="12" y2="21" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+              <line x1="16.5" y1="12" x2="21" y2="12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+              <line x1="3" y1="12" x2="7.5" y2="12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+              <line x1="15.3" y1="8.7" x2="17.7" y2="6.3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+              <line x1="8.7" y1="15.3" x2="6.3" y2="17.7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+              <line x1="8.7" y1="8.7" x2="7" y2="7" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+              <line x1="15.3" y1="15.3" x2="17" y2="17" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div class="state-label">Active<br>scale(0.96)</div>
+        </div>
+        <div class="state-item">
+          <div class="state-fab open">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+              <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </div>
+          <div class="state-label">Open<br>#1f2023</div>
+        </div>
+        <div class="state-item">
+          <div class="state-fab disabled">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+              <circle cx="12" cy="12" r="2.2" fill="currentColor"/>
+              <line x1="12" y1="3" x2="12" y2="7.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+              <line x1="12" y1="16.5" x2="12" y2="21" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+              <line x1="16.5" y1="12" x2="21" y2="12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+              <line x1="3" y1="12" x2="7.5" y2="12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div class="state-label">Disabled</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dimensions -->
+    <div class="spec-section">
+      <h2>Dimensions &amp; icon sizes</h2>
+      <div class="icon-sizes" style="margin-bottom:16px;">
+        <div class="icon-size-item">
+          <div class="icon-size-bg" style="width:56px;height:56px;">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+              <circle cx="12" cy="12" r="2.2" fill="white"/>
+              <line x1="12" y1="3" x2="12" y2="7.5" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
+              <line x1="12" y1="16.5" x2="12" y2="21" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
+              <line x1="16.5" y1="12" x2="21" y2="12" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
+              <line x1="3" y1="12" x2="7.5" y2="12" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
+              <line x1="15.3" y1="8.7" x2="17.7" y2="6.3" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+              <line x1="8.7" y1="15.3" x2="6.3" y2="17.7" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+              <line x1="8.7" y1="8.7" x2="7" y2="7" stroke="white" stroke-width="1.3" stroke-linecap="round"/>
+              <line x1="15.3" y1="15.3" x2="17" y2="17" stroke="white" stroke-width="1.3" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div class="icon-size-label">FAB 56px<br>icon 26px</div>
+        </div>
+        <div class="icon-size-item">
+          <div class="icon-size-bg" style="width:36px;height:36px;border-radius:10px;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+              <circle cx="12" cy="12" r="2.2" fill="white"/>
+              <line x1="12" y1="3" x2="12" y2="7.5" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
+              <line x1="12" y1="16.5" x2="12" y2="21" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
+              <line x1="16.5" y1="12" x2="21" y2="12" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
+              <line x1="3" y1="12" x2="7.5" y2="12" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
+              <line x1="15.3" y1="8.7" x2="17.7" y2="6.3" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+              <line x1="8.7" y1="15.3" x2="6.3" y2="17.7" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div class="icon-size-label">Panel header<br>36×36px</div>
+        </div>
+        <div class="icon-size-item">
+          <div class="icon-size-bg" style="width:24px;height:24px;border-radius:6px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+              <circle cx="12" cy="12" r="2.2" fill="white"/>
+              <line x1="12" y1="3" x2="12" y2="7.5" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
+              <line x1="12" y1="16.5" x2="12" y2="21" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
+              <line x1="16.5" y1="12" x2="21" y2="12" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
+              <line x1="3" y1="12" x2="7.5" y2="12" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div class="icon-size-label">Favicon<br>24px</div>
+        </div>
+      </div>
+      <div class="spec-list">
+        <div class="spec-row"><span class="spec-key">FAB size</span><span class="spec-val">56 × 56 px, border-radius: 50%</span></div>
+        <div class="spec-row"><span class="spec-key">Panel size</span><span class="spec-val">360 × max calc(100vh − 140px)</span></div>
+        <div class="spec-row"><span class="spec-key">Panel radius</span><span class="spec-val">20px</span></div>
+        <div class="spec-row"><span class="spec-key">Position</span><span class="spec-val">fixed bottom: 28px, right: 28px</span></div>
+        <div class="spec-row"><span class="spec-key">z-index</span><span class="spec-val">FAB 100, panel 99</span></div>
+        <div class="spec-row"><span class="spec-key">Icon canvas</span><span class="spec-val">24 × 24 px, stroke 1.8 / 1.5 / 1.3</span></div>
+      </div>
+    </div>
+
+    <!-- Colors -->
+    <div class="spec-section">
+      <h2>Color tokens</h2>
+
+      <!-- Portal color switcher -->
+      <div style="margin-bottom:16px;">
+        <div style="font-size:11px;color:#6b7280;margin-bottom:8px;">Portal <code style="background:#f3f4f6;padding:1px 5px;border-radius:4px;font-size:10px;">colorScheme.main_color</code> — try different portals:</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <button onclick="setPrimary('#ff881a', this)" class="color-demo-btn active" style="background:#ff881a;" title="#ff881a — KC default"></button>
+          <button onclick="setPrimary('#FFD900', this)" class="color-demo-btn" style="background:#FFD900;border-color:#e5e7eb;" title="#FFD900 — Saudi Investment Bank"></button>
+          <button onclick="setPrimary('#1E3A5F', this)" class="color-demo-btn" style="background:#1E3A5F;" title="#1E3A5F — Navy"></button>
+          <button onclick="setPrimary('#0D9488', this)" class="color-demo-btn" style="background:#0D9488;" title="#0D9488 — Teal"></button>
+          <button onclick="setPrimary('#7C3AED', this)" class="color-demo-btn" style="background:#7C3AED;" title="#7C3AED — Purple"></button>
+          <button onclick="setPrimary('#DC2626', this)" class="color-demo-btn" style="background:#DC2626;" title="#DC2626 — Red"></button>
+        </div>
+        <div style="font-size:11px;color:#9ca3af;margin-top:8px;">Current: <span id="currentColorLabel" style="font-family:monospace;font-weight:700;color:#374151;">#ff881a</span></div>
+      </div>
+
+      <div class="color-row">
+        <div class="color-item">
+          <div class="color-swatch" id="primarySwatch" style="background:var(--primary-color);"></div>
+          <div class="color-label">FAB default · Panel accent</div>
+          <div class="color-hex">colorScheme.main_color</div>
+        </div>
+        <div class="color-item">
+          <div class="color-swatch" style="background:#1f2023;"></div>
+          <div class="color-label">FAB open · Panel text</div>
+          <div class="color-hex">#1f2023</div>
+        </div>
+        <div class="color-item">
+          <div class="color-swatch" style="background:#ef4444;"></div>
+          <div class="color-label">Overdue badge</div>
+          <div class="color-hex">#ef4444</div>
+        </div>
+        <div class="color-item">
+          <div class="color-swatch" style="background:#f8f9fa;"></div>
+          <div class="color-label">Panel background · Assistant bubble</div>
+          <div class="color-hex">#f8f9fa</div>
+        </div>
+        <div class="color-item">
+          <div class="color-swatch" style="background:#10b981;"></div>
+          <div class="color-label">Online status indicator</div>
+          <div class="color-hex">#10b981</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Behavior notes -->
+    <div class="spec-section">
+      <h2>Behavior</h2>
+      <div class="spec-list">
+        <div class="spec-row"><span class="spec-key">Open/close</span><span class="spec-val">FAB toggles panel; icon swaps to ✕</span></div>
+        <div class="spec-row"><span class="spec-key">Minimize</span><span class="spec-val">Hides panel, FAB stays visible</span></div>
+        <div class="spec-row"><span class="spec-key">Overdue dot</span><span class="spec-val">Shown when ≥1 overdue assignment</span></div>
+        <div class="spec-row"><span class="spec-key">Open anim</span><span class="spec-val">scale 0.92→1 + opacity 0→1, 200ms</span></div>
+        <div class="spec-row"><span class="spec-key">Streaming</span><span class="spec-val">Tokens appended, cursor blinks</span></div>
+        <div class="spec-row"><span class="spec-key">Prompts</span><span class="spec-val">3 context-specific chips on open</span></div>
+        <div class="spec-row"><span class="spec-key">History</span><span class="spec-val">In-memory per session</span></div>
+        <div class="spec-row"><span class="spec-key">Course page</span><span class="spec-val">Widget not rendered (AI Teacher owns it)</span></div>
+      </div>
+    </div>
+
+    <!-- Privacy note -->
+    <div class="spec-section">
+      <h2>Privacy</h2>
+      <div class="anno">
+        <strong>Footer note</strong> shown on every open session: "Conversations are private and not used for training." System prompt includes <code>no-training</code> flag. Admin insights page shows anonymized questions only.
+      </div>
+    </div>
+
+  </div><!-- /spec-panel -->
+
+</div><!-- /layout -->
+
+
+<script>
+  // ═══ State ═══
+  let panelOpen = false;
+  let currentScenario = 'recommendations';
+
+  const fabBtn     = document.getElementById('fabBtn');
+  const chatPanel  = document.getElementById('chatPanel');
+  const messages   = document.getElementById('messages');
+  const inputField = document.getElementById('inputField');
+
+  // ═══ FAB toggle ═══
+  fabBtn.addEventListener('click', () => {
+    panelOpen = !panelOpen;
+    if (panelOpen) {
+      chatPanel.classList.remove('hidden');
+      chatPanel.classList.add('visible');
+      fabBtn.classList.add('open');
+      fabBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" xmlns="http://www.w3.org/2000/svg"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`;
+    } else {
+      chatPanel.classList.remove('visible');
+      chatPanel.classList.add('hidden');
+      fabBtn.classList.remove('open');
+      fabBtn.innerHTML = getSparkIcon();
+      // restore overdue dot
+    }
+  });
+
+  document.getElementById('minimizeBtn').addEventListener('click', () => {
+    chatPanel.classList.remove('visible');
+    chatPanel.classList.add('hidden');
+    fabBtn.classList.remove('open');
+    fabBtn.innerHTML = getSparkIcon();
+    panelOpen = false;
+  });
+
+  document.getElementById('closeBtn').addEventListener('click', () => {
+    chatPanel.classList.remove('visible');
+    chatPanel.classList.add('hidden');
+    fabBtn.classList.remove('open');
+    fabBtn.innerHTML = getSparkIcon();
+    panelOpen = false;
+  });
+
+  function getSparkIcon() {
+    return `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="12" cy="12" r="2.2" fill="currentColor"/>
+      <line x1="12" y1="3" x2="12" y2="7.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+      <line x1="12" y1="16.5" x2="12" y2="21" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+      <line x1="16.5" y1="12" x2="21" y2="12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+      <line x1="3" y1="12" x2="7.5" y2="12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+      <line x1="15.3" y1="8.7" x2="17.7" y2="6.3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="8.7" y1="15.3" x2="6.3" y2="17.7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="8.7" y1="8.7" x2="7" y2="7" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+      <line x1="15.3" y1="15.3" x2="17" y2="17" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+    </svg>`;
+  }
+
+  // ═══ Send ═══
+  function handleKey(e) {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); }
+  }
+
+  function handleSend() {
+    const text = inputField.value.trim();
+    if (!text) return;
+    inputField.value = '';
+    autoResize(inputField);
+    sendMessage(text);
+  }
+
+  function sendPrompt(btn, text) {
+    // Remove prompts
+    const container = document.getElementById('promptsContainer');
+    if (container) container.remove();
+    sendMessage(text);
+  }
+
+  function sendMessage(text) {
+    appendMessage('user', text);
+    showTyping();
+    const delay = 800 + Math.random() * 400;
+    setTimeout(() => {
+      removeTyping();
+      const reply = getReply(text);
+      appendAssistantMessage(reply.text, reply.cards);
+    }, delay);
+  }
+
+  // ═══ Message rendering ═══
+  function appendMessage(role, text) {
+    const div = document.createElement('div');
+    div.className = `msg ${role}`;
+    const now = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+    div.innerHTML = `<div class="bubble">${escapeHtml(text)}</div><div class="msg-time">${now}</div>`;
+    messages.appendChild(div);
+    scrollBottom();
+  }
+
+  function appendAssistantMessage(text, cards) {
+    const div = document.createElement('div');
+    div.className = 'msg assistant';
+    const now = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+
+    let cardsHtml = '';
+    if (cards && cards.length) {
+      cardsHtml = `<div class="rec-cards">` + cards.map(c => `
+        <div class="rec-card">
+          <div class="rec-card-info">
+            <div class="rec-card-title">${c.title}</div>
+            <div class="rec-card-reason">${c.reason}</div>
+          </div>
+          <button class="rec-card-link">Go to course</button>
+        </div>`).join('') + `</div>`;
+    }
+
+    div.innerHTML = `<div class="bubble"><span id="streaming-text"></span><span class="stream-cursor" id="cursor"></span>${cardsHtml}</div><div class="msg-time">${now}</div>`;
+    messages.appendChild(div);
+    scrollBottom();
+
+    // Simulate streaming
+    streamText(document.getElementById('streaming-text'), document.getElementById('cursor'), text);
+  }
+
+  function streamText(el, cursor, text) {
+    let i = 0;
+    const speed = 18;
+    function tick() {
+      if (i < text.length) {
+        el.textContent += text[i];
+        i++;
+        scrollBottom();
+        setTimeout(tick, speed + (Math.random() * 12 - 6));
+      } else {
+        cursor.remove();
+      }
+    }
+    tick();
+  }
+
+  function showTyping() {
+    const div = document.createElement('div');
+    div.className = 'msg assistant';
+    div.id = 'typing-indicator';
+    div.innerHTML = `<div class="typing"><span></span><span></span><span></span></div>`;
+    messages.appendChild(div);
+    scrollBottom();
+  }
+
+  function removeTyping() {
+    const t = document.getElementById('typing-indicator');
+    if (t) t.remove();
+  }
+
+  function scrollBottom() {
+    messages.scrollTop = messages.scrollHeight;
+  }
+
+  function escapeHtml(t) {
+    return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  function autoResize(el) {
+    el.style.height = 'auto';
+    el.style.height = Math.min(el.scrollHeight, 80) + 'px';
+  }
+
+  // ═══ Simulated replies ═══
+  function getReply(text) {
+    const lower = text.toLowerCase();
+
+    if (lower.includes('learn next') || lower.includes('recommend') || lower.includes('what should')) {
+      return {
+        text: "Based on your role and completed courses, here are my top picks for you:",
+        cards: [
+          { title: "Leadership Essentials", reason: "You're 20% through — continuing now builds on your Excel skills." },
+          { title: "Project Management Fundamentals", reason: "Assigned and not started. High-priority for your role." },
+          { title: "Communication at Work", reason: "Complements your leadership track and is highly rated." }
+        ]
+      };
+    }
+
+    if (lower.includes('deadline') || lower.includes('overdue') || lower.includes('assignment')) {
+      return {
+        text: "Here are your current assignments:\n\n⚠ Overdue\n• Cybersecurity Awareness — was due Apr 8\n\n📅 Upcoming\n• Time Management at Work — due Apr 22\n• Data Privacy Essentials — due May 1",
+        cards: null
+      };
+    }
+
+    if (lower.includes('excel') || lower.includes('skill') || lower.includes('improve')) {
+      return {
+        text: "You're 68% through Excel for Business Professionals — great progress! To sharpen your skills further, I'd suggest finishing that course first, then moving to Data Analysis with Excel which builds on the same foundation.\n\nWould you like me to find more advanced Excel courses?",
+        cards: null
+      };
+    }
+
+    return {
+      text: "I can help you with course recommendations, assignment deadlines, and content questions. Try asking 'What should I learn next?' or 'What are my upcoming deadlines?'",
+      cards: null
+    };
+  }
+
+  // ═══ Scenario switcher ═══
+  const scenarioDescMap = {
+    recommendations: 'Click <strong>"What should I learn next?"</strong> in the chat to see a simulated recommendation response with course cards and links.',
+    deadlines: 'Click <strong>"What are my upcoming deadlines?"</strong> to see the deadline listing with overdue and upcoming assignment status.',
+    content: 'Click <strong>"How do I improve my Excel skills?"</strong> to see a content Q&amp;A response grounded in the current course.'
+  };
+
+  function setScenario(name) {
+    currentScenario = name;
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    event.target.classList.add('active');
+    document.getElementById('scenarioDesc').innerHTML = scenarioDescMap[name];
+    resetChat();
+
+    // Update suggested prompts
+    const promptMap = {
+      recommendations: [
+        {icon: starIcon, text: 'What should I learn next?'},
+        {icon: bookIcon, text: 'Show me courses for my role'},
+        {icon: infoIcon, text: 'What skills am I missing?'}
+      ],
+      deadlines: [
+        {icon: calIcon, text: 'What are my upcoming deadlines?'},
+        {icon: warnIcon, text: 'Do I have overdue assignments?'},
+        {icon: infoIcon, text: 'What is due this week?'}
+      ],
+      content: [
+        {icon: infoIcon, text: 'How do I improve my Excel skills?'},
+        {icon: bookIcon, text: 'What topics does this course cover?'},
+        {icon: starIcon, text: 'Is there a quiz in this course?'}
+      ]
+    };
+
+    const prompts = promptMap[name];
+    const container = document.createElement('div');
+    container.id = 'promptsContainer';
+    container.innerHTML = `<div class="prompts-label">Suggested for you</div><div class="prompts">${
+      prompts.map(p => `<button class="prompt-chip" onclick="sendPrompt(this, '${p.text}')">${p.icon}${p.text}</button>`).join('')
+    }</div>`;
+    messages.appendChild(container);
+  }
+
+  function resetChat() {
+    messages.innerHTML = '';
+    const container = document.createElement('div');
+    container.id = 'promptsContainer';
+    const scenario = currentScenario || 'recommendations';
+    const promptMap = {
+      recommendations: [
+        {icon: starIcon, text: 'What should I learn next?'},
+        {icon: bookIcon, text: 'Show me courses for my role'},
+        {icon: infoIcon, text: 'What skills am I missing?'}
+      ],
+      deadlines: [
+        {icon: calIcon, text: 'What are my upcoming deadlines?'},
+        {icon: warnIcon, text: 'Do I have overdue assignments?'},
+        {icon: infoIcon, text: 'What is due this week?'}
+      ],
+      content: [
+        {icon: infoIcon, text: 'How do I improve my Excel skills?'},
+        {icon: bookIcon, text: 'What topics does this course cover?'},
+        {icon: starIcon, text: 'Is there a quiz in this course?'}
+      ]
+    };
+    const prompts = promptMap[scenario];
+    container.innerHTML = `<div class="prompts-label">Suggested for you</div><div class="prompts">${
+      prompts.map(p => `<button class="prompt-chip" onclick="sendPrompt(this, '${p.text}')">${p.icon}${p.text}</button>`).join('')
+    }</div>`;
+    messages.appendChild(container);
+  }
+
+  // Icon snippets for prompt chips
+  const starIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="width:14px;height:14px;color:var(--primary-color);flex-shrink:0"><path d="M12 2L13.5 9.5L21 12L13.5 14.5L12 22L10.5 14.5L3 12L10.5 9.5Z"/></svg>`;
+  const calIcon  = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="width:14px;height:14px;color:var(--primary-color);flex-shrink:0"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>`;
+  const infoIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="width:14px;height:14px;color:var(--primary-color);flex-shrink:0"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`;
+  const bookIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="width:14px;height:14px;color:var(--primary-color);flex-shrink:0"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>`;
+  const warnIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="width:14px;height:14px;color:var(--primary-color);flex-shrink:0"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`;
+
+  // ═══ Portal color switcher ═══
+  function getLuminance(hex) {
+    const r = parseInt(hex.slice(1,3),16)/255;
+    const g = parseInt(hex.slice(3,5),16)/255;
+    const b = parseInt(hex.slice(5,7),16)/255;
+    const toLinear = c => c <= 0.03928 ? c/12.92 : Math.pow((c+0.055)/1.055, 2.4);
+    return 0.2126*toLinear(r) + 0.7152*toLinear(g) + 0.0722*toLinear(b);
+  }
+
+  function setPrimary(hex, btn) {
+    document.documentElement.style.setProperty('--primary-color', hex);
+    const onPrimary = getLuminance(hex) > 0.179 ? '#1f2023' : '#ffffff';
+    document.documentElement.style.setProperty('--on-primary', onPrimary);
+    document.getElementById('currentColorLabel').textContent = hex;
+    document.getElementById('primarySwatch').style.background = hex;
+    document.querySelectorAll('.color-demo-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  }
+</script>
+
+</body>
+</html>

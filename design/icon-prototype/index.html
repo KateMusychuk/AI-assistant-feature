@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Assistant — Custom Icon Concepts</title>
+  <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Lato', sans-serif; background: #f0f0f0; padding: 40px; color: #1f2023; }
+
+    h1 { font-size: 22px; font-weight: 900; margin-bottom: 4px; }
+    .subtitle { font-size: 13px; color: #6b7280; margin-bottom: 32px; }
+    h2 { font-size: 11px; font-weight: 700; margin-bottom: 20px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.1em; }
+
+    .section { background: #fff; border-radius: 20px; padding: 32px; margin-bottom: 24px; }
+
+    /* ── Icon concept row ── */
+    .concept-row {
+      display: grid;
+      grid-template-columns: 160px 1fr;
+      gap: 24px;
+      align-items: start;
+      padding: 20px 0;
+      border-bottom: 1px solid #f3f4f6;
+    }
+    .concept-row:last-child { border-bottom: none; }
+
+    .concept-meta { display: flex; flex-direction: column; gap: 6px; }
+    .concept-name { font-size: 14px; font-weight: 700; }
+    .concept-desc { font-size: 12px; color: #6b7280; line-height: 1.5; }
+    .tag { display:inline-block; background:#f3f4f6; color:#6b7280; font-size:10px; font-weight:700; padding:2px 7px; border-radius:99px; margin-top:4px; }
+    .tag.rec { background:#FEF3E7; color:#F4821F; }
+
+    /* ── Background swatches ── */
+    .swatches { display: flex; gap: 12px; flex-wrap: wrap; }
+
+    .swatch {
+      width: 64px; height: 64px;
+      border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      position: relative;
+      flex-shrink: 0;
+    }
+    .swatch-label {
+      position: absolute; bottom: -18px; left: 50%; transform: translateX(-50%);
+      font-size: 9px; color: #9ca3af; white-space: nowrap;
+    }
+
+    .swatch-group {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+    }
+
+    /* FAB */
+    .fab {
+      width: 48px; height: 48px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; border: none;
+      transition: transform 0.15s, box-shadow 0.15s;
+      flex-shrink: 0;
+    }
+    .fab:hover { transform: scale(1.1); }
+    .fab:active { transform: scale(0.94); }
+
+    /* bg colors */
+    .bg-white { background: #ffffff; box-shadow: 0 0 0 1px #e5e7eb; }
+    .bg-black { background: #111111; }
+    .bg-orange { background: #F4821F; }
+    .bg-navy { background: #1E3A5F; }
+    .bg-teal { background: #0D9488; }
+    .bg-slate { background: #475569; }
+    .bg-cream { background: #FEF9F0; box-shadow: 0 0 0 1px #e5e7eb; }
+    .bg-purple { background: #7C3AED; }
+
+    /* icon on light = dark stroke; on dark = white stroke */
+  </style>
+</head>
+<body>
+
+<h1>AI Assistant — Custom Icon Concepts</h1>
+<p class="subtitle">No brand text · works on any portal color · all 8 background variants shown per concept</p>
+
+<div class="section">
+  <h2>How to read · each row = 1 icon concept shown on 8 portal color variants</h2>
+
+  <!-- CONCEPT 1: Neural Spark -->
+  <div class="concept-row">
+    <div class="concept-meta">
+      <div class="concept-name">1 · Neural Spark</div>
+      <div class="concept-desc">Центральная точка с лучами разной длины — символ AI-intelligence и broadcast</div>
+      <span class="tag rec">★ Top pick</span>
+    </div>
+    <div class="swatches">
+
+      <div class="swatch-group">
+        <div class="swatch bg-white">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="2.2" fill="#1f2023"/>
+            <line x1="12" y1="3" x2="12" y2="7" stroke="#1f2023" stroke-width="1.8" stroke-linecap="round"/>
+            <line x1="12" y1="17" x2="12" y2="21" stroke="#1f2023" stroke-width="1.8" stroke-linecap="round"/>
+            <line x1="3" y1="12" x2="7" y2="12" stroke="#1f2023" stroke-width="1.8" stroke-linecap="round"/>
+            <line x1="17" y1="12" x2="21" y2="12" stroke="#1f2023" stroke-width="1.8" stroke-linecap="round"/>
+            <line x1="5.6" y1="5.6" x2="8.4" y2="8.4" stroke="#1f2023" stroke-width="1.8" stroke-linecap="round"/>
+            <line x1="15.6" y1="15.6" x2="18.4" y2="18.4" stroke="#1f2023" stroke-width="1.8" stroke-linecap="round"/>
+            <line x1="18.4" y1="5.6" x2="15.6" y2="8.4" stroke="#1f2023" stroke-width="1.4" stroke-linecap="round"/>
+            <line x1="5.6" y1="18.4" x2="8.4" y2="15.6" stroke="#1f2023" stroke-width="1.4" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div style="font-size:9px;color:#9ca3af;text-align:center">White</div>
+      </div>
+
+      <div class="swatch-group">
+        <div class="swatch bg-cream">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="2.2" fill="#1f2023"/>
+            <line x1="12" y1="3" x2="12" y2="7" stroke="#1f2023" stroke-width="1.8" stroke-linecap="round"/>
+            <line x1="12" y1="17" x2="12" y2="21" stroke="#1f2023" stroke-width="1.8" stroke-linecap="round"/>
+            <line x1="3" y1="12" x2="7" y2="12" stroke="#1f2023" stroke-width="1.8" stroke-linecap="round"/>
+            <line x1="17" y1="12" x2="21" y2="12" stroke="#1f2023" stroke-width="1.8" stroke-linecap="round"/>
+            <line x1="5.6" y1="5.6" x2="8.4" y2="8.4" stroke="#1f2023" stroke-width="1.8" stroke-linecap="round"/>
+            <line x1="15.6" y1="15.6" x2="18.4" y2="18.4" stroke="#1f2023" stroke-width="1.8" stroke-linecap="round"/>
+            <line x1="18.4" y1="5.6" x2="15.6" y2="8.4" stroke="#1f2023" stroke-width="1.4" stroke-linecap="round"/>
+            <line x1="5.6" y1="18.4" x2="8.4" y2="15.6" stroke="#1f2023" stroke-width="1.4" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div style="font-size:9px;color:#9ca3af;text-align:center">Cream</div>
+      </div>
+
+      <div class="swatch-group">
+        <div class="swatch bg-orange">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="2.2" fill="white"/>
+            <line x1="12" y1="3" x2="12" y2="7" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
+            <line x1="12" y1="17" x2="12" y2="21" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
+            <line x1="3" y1="12" x2="7" y2="12" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
+            <line x1="17" y1="12" x2="21" y2="12" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
+            <line x1="5.6" y1="5.6" x2="8.4" y2="8.4" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
+            <line x1="15.6" y1="15.6" x2="18.4" y2="18.4" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
+            <line x1="18.4" y1="5.6" x2="15.6" y2="8.4" stroke="white" stroke-width="1.4" stroke-linecap="round"/>
+            <line x1="5.6" y1="18.4" x2="8.4" y2="15.6" stroke="white" stroke-width="1.4" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div style="font-size:9px;color:#9ca3af;text-align:center">Orange</div>
+      </div>
+
+      <div class="swatch-group">
+        <div class="swatch bg-black">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="2.2" fill="white"/>
+            <line x1="12" y1="3" x2="12" y2="7" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
+            <line x1="12" y1="17" x2="12" y2="21" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
+            <line x1="3" y1="12" x2="7" y2="12" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
+            <line x1="17" y1="12" x2="21" y2="12" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
+            <line x1="5.6" y1="5.6" x2="8.4" y2="8.4" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
+            <line x1="15.6" y1="15.6" x2="18.4" y2="18.4" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
+            <line x1="18.4" y1="5.6" x2="15.6" y2="8.4" stroke="white" stroke-width="1.4" stroke-linecap="round"/>
+            <line x1="5.6" y1="18.4" x2="8.4" y2="15.6" stroke="white" stroke-width="1.4" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div style="font-size:9px;color:#9ca3af;text-align:center">Black</div>
+      </div>
+
+      <div class="swatch-group">
+        <div class="swatch bg-navy">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="2.2" fill="white"/>
+            <line x1="12" y1="3" x2="12" y2="7" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
+            <line x1="12" y1="17" x2="12" y2="21" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
+            <line x1="3" y1="12" x2="7" y2="12" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
+            <line x1="17" y1="12" x2="21" y2="12" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
+            <line x1="5.6" y1="5.6" x2="8.4" y2="8.4" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
+            <line x1="15.6" y1="15.6" x2="18.4" y2="18.4" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
+            <line x1="18.4" y1="5.6" x2="15.6" y2="8.4" stroke="white" stroke-width="1.4" stroke-linecap="round"/>
+            <line x1="5.6" y1="18.4" x2="8.4" y2="15.6" stroke="white" stroke-width="1.4" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div style="font-size:9px;color:#9ca3af;text-align:center">Navy</div>
+      </div>
+
+      <div class="swatch-group">
+        <div class="swatch bg-teal">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="2.2" fill="white"/>
+            <line x1="12" y1="3" x2="12" y2="7" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
+            <line x1="12" y1="17" x2="12" y2="21" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
+            <line x1="3" y1="12" x2="7" y2="12" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
+            <line x1="17" y1="12" x2="21" y2="12" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
+            <line x1="5.6" y1="5.6" x2="8.4" y2="8.4" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
+            <line x1="15.6" y1="15.6" x2="18.4" y2="18.4" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
+            <line x1="18.4" y1="5.6" x2="15.6" y2="8.4" stroke="white" stroke-width="1.4" stroke-linecap="round"/>
+            <line x1="5.6" y1="18.4" x2="8.4" y2="15.6" stroke="white" stroke-width="1.4" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div style="font-size:9px;color:#9ca3af;text-align:center">Teal</div>
+      </div>
+
+      <div class="swatch-group">
+        <div class="swatch bg-slate">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="2.2" fill="white"/>
+            <line x1="12" y1="3" x2="12" y2="7" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
+            <line x1="12" y1="17" x2="12" y2="21" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
+            <line x1="3" y1="12" x2="7" y2="12" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
+            <line x1="17" y1="12" x2="21" y2="12" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
+            <line x1="5.6" y1="5.6" x2="8.4" y2="8.4" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
+            <line x1="15.6" y1="15.6" x2="18.4" y2="18.4" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
+            <line x1="18.4" y1="5.6" x2="15.6" y2="8.4" stroke="white" stroke-width="1.4" stroke-linecap="round"/>
+            <line x1="5.6" y1="18.4" x2="8.4" y2="15.6" stroke="white" stroke-width="1.4" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div style="font-size:9px;color:#9ca3af;text-align:center">Slate</div>
+      </div>
+
+      <div class="swatch-group">
+        <div class="swatch bg-purple">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="2.2" fill="white"/>
+            <line x1="12" y1="3" x2="12" y2="7" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
+            <line x1="12" y1="17" x2="12" y2="21" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
+            <line x1="3" y1="12" x2="7" y2="12" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
+            <line x1="17" y1="12" x2="21" y2="12" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
+            <line x1="5.6" y1="5.6" x2="8.4" y2="8.4" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
+            <line x1="15.6" y1="15.6" x2="18.4" y2="18.4" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
+            <line x1="18.4" y1="5.6" x2="15.6" y2="8.4" stroke="white" stroke-width="1.4" stroke-linecap="round"/>
+            <line x1="5.6" y1="18.4" x2="8.4" y2="15.6" stroke="white" stroke-width="1.4" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div style="font-size:9px;color:#9ca3af;text-align:center">Purple</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- CONCEPT 2: 4-point star -->
+  <div class="concept-row">
+    <div class="concept-meta">
+      <div class="concept-name">2 · Guide Star</div>
+      <div class="concept-desc">Чистая 4-точечная звезда. Универсальный AI-символ, минимальный, масштабируется идеально</div>
+      <span class="tag rec">★ Top pick</span>
+    </div>
+    <div class="swatches">
+      <!-- SVG macro for guide star -->
+      <script>
+        // rendered inline below per swatch
+      </script>
+
+      <!-- white -->
+      <div class="swatch-group"><div class="swatch bg-white">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+          <path d="M12 2L13.5 9.5L21 12L13.5 14.5L12 22L10.5 14.5L3 12L10.5 9.5Z" stroke="#1f2023" stroke-width="1.6" stroke-linejoin="round" fill="#1f2023" fill-opacity="0.08"/>
+        </svg>
+      </div><div style="font-size:9px;color:#9ca3af;text-align:center">White</div></div>
+
+      <div class="swatch-group"><div class="swatch bg-cream">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+          <path d="M12 2L13.5 9.5L21 12L13.5 14.5L12 22L10.5 14.5L3 12L10.5 9.5Z" stroke="#1f2023" stroke-width="1.6" stroke-linejoin="round" fill="#1f2023" fill-opacity="0.08"/>
+        </svg>
+      </div><div style="font-size:9px;color:#9ca3af;text-align:center">Cream</div></div>
+
+      <div class="swatch-group"><div class="swatch bg-orange">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+          <path d="M12 2L13.5 9.5L21 12L13.5 14.5L12 22L10.5 14.5L3 12L10.5 9.5Z" stroke="white" stroke-width="1.6" stroke-linejoin="round" fill="white" fill-opacity="0.15"/>
+        </svg>
+      </div><div style="font-size:9px;color:#9ca3af;text-align:center">Orange</div></div>
+
+      <div class="swatch-group"><div class="swatch bg-black">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+          <path d="M12 2L13.5 9.5L21 12L13.5 14.5L12 22L10.5 14.5L3 12L10.5 9.5Z" stroke="white" stroke-width="1.6" stroke-linejoin="round" fill="white" fill-opacity="0.15"/>
+        </svg>
+      </div><div style="font-size:9px;color:#9ca3af;text-align:center">Black</div></div>
+
+      <div class="swatch-group"><div class="swatch bg-navy">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+          <path d="M12 2L13.5 9.5L21 12L13.5 14.5L12 22L10.5 14.5L3 12L10.5 9.5Z" stroke="white" stroke-width="1.6" stroke-linejoin="round" fill="white" fill-opacity="0.15"/>
+        </svg>
+      </div><div style="font-size:9px;color:#9ca3af;text-align:center">Navy</div></div>
+
+      <div class="swatch-group"><div class="swatch bg-teal">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+          <path d="M12 2L13.5 9.5L21 12L13.5 14.5L12 22L10.5 14.5L3 12L10.5 9.5Z" stroke="white" stroke-width="1.6" stroke-linejoin="round" fill="white" fill-opacity="0.15"/>
+        </svg>
+      </div><div style="font-size:9px;color:#9ca3af;text-align:center">Teal</div></div>
+
+      <div class="swatch-group"><div class="swatch bg-slate">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+          <path d="M12 2L13.5 9.5L21 12L13.5 14.5L12 22L10.5 14.5L3 12L10.5 9.5Z" stroke="white" stroke-width="1.6" stroke-linejoin="round" fill="white" fill-opacity="0.15"/>
+        </svg>
+      </div><div style="font-size:9px;color:#9ca3af;text-align:center">Slate</div></div>
+
+      <div class="swatch-group"><div class="swatch bg-purple">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+          <path d="M12 2L13.5 9.5L21 12L13.5 14.5L12 22L10.5 14.5L3 12L10.5 9.5Z" stroke="white" stroke-width="1.6" stroke-linejoin="round" fill="white" fill-opacity="0.15"/>
+        </svg>
+      </div><div style="font-size:9px;color:#9ca3af;text-align:center">Purple</div></div>
+    </div>
+  </div>
+
+  <!-- CONCEPT 3: Chat bubble + brain wave -->
+  <div class="concept-row">
+    <div class="concept-meta">
+      <div class="concept-name">3 · Pulse Chat</div>
+      <div class="concept-desc">Чат-пузырь с пульс-линией внутри. Сочетает «разговор» + «интеллект/активность»</div>
+      <span class="tag">Communicative</span>
+    </div>
+    <div class="swatches">
+      <div class="swatch-group"><div class="swatch bg-white">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+          <path d="M19.5 3H4.5C3.67 3 3 3.67 3 4.5V14.5C3 15.33 3.67 16 4.5 16V19.5C4.5 19.78 4.83 19.91 5.03 19.72L8.8 16H19.5C20.33 16 21 15.33 21 14.5V4.5C21 3.67 20.33 3 19.5 3Z" stroke="#1f2023" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M6 9.5H8L9.5 7.5L11 11.5L13 8L14.5 9.5H18" stroke="#1f2023" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div><div style="font-size:9px;color:#9ca3af;text-align:center">White</div></div>
+
+      <div class="swatch-group"><div class="swatch bg-cream">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+          <path d="M19.5 3H4.5C3.67 3 3 3.67 3 4.5V14.5C3 15.33 3.67 16 4.5 16V19.5C4.5 19.78 4.83 19.91 5.03 19.72L8.8 16H19.5C20.33 16 21 15.33 21 14.5V4.5C21 3.67 20.33 3 19.5 3Z" stroke="#1f2023" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M6 9.5H8L9.5 7.5L11 11.5L13 8L14.5 9.5H18" stroke="#1f2023" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div><div style="font-size:9px;color:#9ca3af;text-align:center">Cream</div></div>
+
+      <div class="swatch-group"><div class="swatch bg-orange">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+          <path d="M19.5 3H4.5C3.67 3 3 3.67 3 4.5V14.5C3 15.33 3.67 16 4.5 16V19.5C4.5 19.78 4.83 19.91 5.03 19.72L8.8 16H19.5C20.33 16 21 15.33 21 14.5V4.5C21 3.67 20.33 3 19.5 3Z" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M6 9.5H8L9.5 7.5L11 11.5L13 8L14.5 9.5H18" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div><div style="font-size:9px;color:#9ca3af;text-align:center">Orange</div></div>
+
+      <div class="swatch-group"><div class="swatch bg-black">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+          <path d="M19.5 3H4.5C3.67 3 3 3.67 3 4.5V14.5C3 15.33 3.67 16 4.5 16V19.5C4.5 19.78 4.83 19.91 5.03 19.72L8.8 16H19.5C20.33 16 21 15.33 21 14.5V4.5C21 3.67 20.33 3 19.5 3Z" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M6 9.5H8L9.5 7.5L11 11.5L13 8L14.5 9.5H18" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div><div style="font-size:9px;color:#9ca3af;text-align:center">Black</div></div>
+
+      <div class="swatch-group"><div class="swatch bg-navy">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+          <path d="M19.5 3H4.5C3.67 3 3 3.67 3 4.5V14.5C3 15.33 3.67 16 4.5 16V19.5C4.5 19.78 4.83 19.91 5.03 19.72L8.8 16H19.5C20.33 16 21 15.33 21 14.5V4.5C21 3.67 20.33 3 19.5 3Z" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M6 9.5H8L9.5 7.5L11 11.5L13 8L14.5 9.5H18" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div><div style="font-size:9px;color:#9ca3af;text-align:center">Navy</div></div>
+
+      <div class="swatch-group"><div class="swatch bg-teal">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+          <path d="M19.5 3H4.5C3.67 3 3 3.67 3 4.5V14.5C3 15.33 3.67 16 4.5 16V19.5C4.5 19.78 4.83 19.91 5.03 19.72L8.8 16H19.5C20.33 16 21 15.33 21 14.5V4.5C21 3.67 20.33 3 19.5 3Z" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M6 9.5H8L9.5 7.5L11 11.5L13 8L14.5 9.5H18" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div><div style="font-size:9px;color:#9ca3af;text-align:center">Teal</div></div>
+
+      <div class="swatch-group"><div class="swatch bg-slate">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+          <path d="M19.5 3H4.5C3.67 3 3 3.67 3 4.5V14.5C3 15.33 3.67 16 4.5 16V19.5C4.5 19.78 4.83 19.91 5.03 19.72L8.8 16H19.5C20.33 16 21 15.33 21 14.5V4.5C21 3.67 20.33 3 19.5 3Z" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M6 9.5H8L9.5 7.5L11 11.5L13 8L14.5 9.5H18" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div><div style="font-size:9px;color:#9ca3af;text-align:center">Slate</div></div>
+
+      <div class="swatch-group"><div class="swatch bg-purple">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+          <path d="M19.5 3H4.5C3.67 3 3 3.67 3 4.5V14.5C3 15.33 3.67 16 4.5 16V19.5C4.5 19.78 4.83 19.91 5.03 19.72L8.8 16H19.5C20.33 16 21 15.33 21 14.5V4.5C21 3.67 20.33 3 19.5 3Z" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M6 9.5H8L9.5 7.5L11 11.5L13 8L14.5 9.5H18" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div><div style="font-size:9px;color:#9ca3af;text-align:center">Purple</div></div>
+    </div>
+  </div>
+
+  <!-- CONCEPT 4: Constellation / nodes -->
+  <div class="concept-row">
+    <div class="concept-meta">
+      <div class="concept-name">4 · Constellation</div>
+      <div class="concept-desc">Три узла соединённые линиями — нейросеть, connections, AI. Абстрактно, технологично</div>
+      <span class="tag">Abstract</span>
+    </div>
+    <div class="swatches">
+      <div class="swatch-group"><div class="swatch bg-white">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="5" r="2" fill="#1f2023"/>
+          <circle cx="5" cy="17" r="2" fill="#1f2023"/>
+          <circle cx="19" cy="17" r="2" fill="#1f2023"/>
+          <line x1="12" y1="7" x2="6.7" y2="15.3" stroke="#1f2023" stroke-width="1.5" stroke-linecap="round"/>
+          <line x1="12" y1="7" x2="17.3" y2="15.3" stroke="#1f2023" stroke-width="1.5" stroke-linecap="round"/>
+          <line x1="7" y1="17" x2="17" y2="17" stroke="#1f2023" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </div><div style="font-size:9px;color:#9ca3af;text-align:center">White</div></div>
+
+      <div class="swatch-group"><div class="swatch bg-cream">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="5" r="2" fill="#1f2023"/>
+          <circle cx="5" cy="17" r="2" fill="#1f2023"/>
+          <circle cx="19" cy="17" r="2" fill="#1f2023"/>
+          <line x1="12" y1="7" x2="6.7" y2="15.3" stroke="#1f2023" stroke-width="1.5" stroke-linecap="round"/>
+          <line x1="12" y1="7" x2="17.3" y2="15.3" stroke="#1f2023" stroke-width="1.5" stroke-linecap="round"/>
+          <line x1="7" y1="17" x2="17" y2="17" stroke="#1f2023" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </div><div style="font-size:9px;color:#9ca3af;text-align:center">Cream</div></div>
+
+      <div class="swatch-group"><div class="swatch bg-orange">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="5" r="2" fill="white"/>
+          <circle cx="5" cy="17" r="2" fill="white"/>
+          <circle cx="19" cy="17" r="2" fill="white"/>
+          <line x1="12" y1="7" x2="6.7" y2="15.3" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+          <line x1="12" y1="7" x2="17.3" y2="15.3" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+          <line x1="7" y1="17" x2="17" y2="17" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </div><div style="font-size:9px;color:#9ca3af;text-align:center">Orange</div></div>
+
+      <div class="swatch-group"><div class="swatch bg-black">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="5" r="2" fill="white"/>
+          <circle cx="5" cy="17" r="2" fill="white"/>
+          <circle cx="19" cy="17" r="2" fill="white"/>
+          <line x1="12" y1="7" x2="6.7" y2="15.3" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+          <line x1="12" y1="7" x2="17.3" y2="15.3" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+          <line x1="7" y1="17" x2="17" y2="17" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </div><div style="font-size:9px;color:#9ca3af;text-align:center">Black</div></div>
+
+      <div class="swatch-group"><div class="swatch bg-navy">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="5" r="2" fill="white"/>
+          <circle cx="5" cy="17" r="2" fill="white"/>
+          <circle cx="19" cy="17" r="2" fill="white"/>
+          <line x1="12" y1="7" x2="6.7" y2="15.3" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+          <line x1="12" y1="7" x2="17.3" y2="15.3" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+          <line x1="7" y1="17" x2="17" y2="17" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </div><div style="font-size:9px;color:#9ca3af;text-align:center">Navy</div></div>
+
+      <div class="swatch-group"><div class="swatch bg-teal">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="5" r="2" fill="white"/>
+          <circle cx="5" cy="17" r="2" fill="white"/>
+          <circle cx="19" cy="17" r="2" fill="white"/>
+          <line x1="12" y1="7" x2="6.7" y2="15.3" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+          <line x1="12" y1="7" x2="17.3" y2="15.3" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+          <line x1="7" y1="17" x2="17" y2="17" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </div><div style="font-size:9px;color:#9ca3af;text-align:center">Teal</div></div>
+
+      <div class="swatch-group"><div class="swatch bg-slate">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="5" r="2" fill="white"/>
+          <circle cx="5" cy="17" r="2" fill="white"/>
+          <circle cx="19" cy="17" r="2" fill="white"/>
+          <line x1="12" y1="7" x2="6.7" y2="15.3" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+          <line x1="12" y1="7" x2="17.3" y2="15.3" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+          <line x1="7" y1="17" x2="17" y2="17" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </div><div style="font-size:9px;color:#9ca3af;text-align:center">Slate</div></div>
+
+      <div class="swatch-group"><div class="swatch bg-purple">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="5" r="2" fill="white"/>
+          <circle cx="5" cy="17" r="2" fill="white"/>
+          <circle cx="19" cy="17" r="2" fill="white"/>
+          <line x1="12" y1="7" x2="6.7" y2="15.3" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+          <line x1="12" y1="7" x2="17.3" y2="15.3" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+          <line x1="7" y1="17" x2="17" y2="17" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </div><div style="font-size:9px;color:#9ca3af;text-align:center">Purple</div></div>
+    </div>
+  </div>
+
+  <!-- CONCEPT 5: Compass / north star -->
+  <div class="concept-row">
+    <div class="concept-meta">
+      <div class="concept-name">5 · Compass Star</div>
+      <div class="concept-desc">Компас/путеводная звезда. Ассоциация: «направляет», «помогает найти путь». Идеально для learning assistant</div>
+      <span class="tag rec">★ Top pick</span>
+    </div>
+    <div class="swatches">
+      <div class="swatch-group"><div class="swatch bg-white">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+          <path d="M12 2L14 10L22 12L14 14L12 22L10 14L2 12L10 10Z" stroke="#1f2023" stroke-width="1.6" stroke-linejoin="round" fill="none"/>
+          <circle cx="12" cy="12" r="1.5" fill="#1f2023"/>
+        </svg>
+      </div><div style="font-size:9px;color:#9ca3af;text-align:center">White</div></div>
+
+      <div class="swatch-group"><div class="swatch bg-cream">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+          <path d="M12 2L14 10L22 12L14 14L12 22L10 14L2 12L10 10Z" stroke="#1f2023" stroke-width="1.6" stroke-linejoin="round" fill="none"/>
+          <circle cx="12" cy="12" r="1.5" fill="#1f2023"/>
+        </svg>
+      </div><div style="font-size:9px;color:#9ca3af;text-align:center">Cream</div></div>
+
+      <div class="swatch-group"><div class="swatch bg-orange">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+          <path d="M12 2L14 10L22 12L14 14L12 22L10 14L2 12L10 10Z" stroke="white" stroke-width="1.6" stroke-linejoin="round" fill="none"/>
+          <circle cx="12" cy="12" r="1.5" fill="white"/>
+        </svg>
+      </div><div style="font-size:9px;color:#9ca3af;text-align:center">Orange</div></div>
+
+      <div class="swatch-group"><div class="swatch bg-black">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+          <path d="M12 2L14 10L22 12L14 14L12 22L10 14L2 12L10 10Z" stroke="white" stroke-width="1.6" stroke-linejoin="round" fill="none"/>
+          <circle cx="12" cy="12" r="1.5" fill="white"/>
+        </svg>
+      </div><div style="font-size:9px;color:#9ca3af;text-align:center">Black</div></div>
+
+      <div class="swatch-group"><div class="swatch bg-navy">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+          <path d="M12 2L14 10L22 12L14 14L12 22L10 14L2 12L10 10Z" stroke="white" stroke-width="1.6" stroke-linejoin="round" fill="none"/>
+          <circle cx="12" cy="12" r="1.5" fill="white"/>
+        </svg>
+      </div><div style="font-size:9px;color:#9ca3af;text-align:center">Navy</div></div>
+
+      <div class="swatch-group"><div class="swatch bg-teal">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+          <path d="M12 2L14 10L22 12L14 14L12 22L10 14L2 12L10 10Z" stroke="white" stroke-width="1.6" stroke-linejoin="round" fill="none"/>
+          <circle cx="12" cy="12" r="1.5" fill="white"/>
+        </svg>
+      </div><div style="font-size:9px;color:#9ca3af;text-align:center">Teal</div></div>
+
+      <div class="swatch-group"><div class="swatch bg-slate">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+          <path d="M12 2L14 10L22 12L14 14L12 22L10 14L2 12L10 10Z" stroke="white" stroke-width="1.6" stroke-linejoin="round" fill="none"/>
+          <circle cx="12" cy="12" r="1.5" fill="white"/>
+        </svg>
+      </div><div style="font-size:9px;color:#9ca3af;text-align:center">Slate</div></div>
+
+      <div class="swatch-group"><div class="swatch bg-purple">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+          <path d="M12 2L14 10L22 12L14 14L12 22L10 14L2 12L10 10Z" stroke="white" stroke-width="1.6" stroke-linejoin="round" fill="none"/>
+          <circle cx="12" cy="12" r="1.5" fill="white"/>
+        </svg>
+      </div><div style="font-size:9px;color:#9ca3af;text-align:center">Purple</div></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- NOTE ON ADAPTIVE LOGIC -->
+<div class="section" style="background:#1f2023; color:white;">
+  <h2 style="color:#4b5563">Implementation note · adaptive icon color</h2>
+  <p style="font-size:13px; color:#9ca3af; line-height:1.7;">
+    Иконка использует <strong style="color:white">currentColor</strong> — она наследует цвет от родительского контейнера.<br/>
+    Логика в коде: если background кнопки светлый → icon color = тёмный (#1f2023); если тёмный → icon color = white.<br/>
+    Это стандартный паттерн в UI Kit (<code style="color:#F4821F">color-contrast()</code> или JS luminance check).<br/>
+    Один SVG файл работает для всех порталов любого цвета.
+  </p>
+</div>
+
+</body>
+</html>

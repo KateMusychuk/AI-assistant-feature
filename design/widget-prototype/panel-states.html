@@ -1,0 +1,1219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Student Assistant — Panel States</title>
+  <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --p: #ff881a; --on-p: #ffffff; }
+    body { font-family: 'Lato', sans-serif; background: #eef0f3; min-height: 100vh; }
+
+    /* ── Page layout ── */
+    .page { display: flex; flex-direction: column; min-height: 100vh; }
+
+    /* ── Top bar ── */
+    .topbar {
+      background: #fff; border-bottom: 1px solid #e5e7eb;
+      padding: 0 32px; height: 52px;
+      display: flex; align-items: center; justify-content: space-between;
+      position: sticky; top: 0; z-index: 20;
+    }
+    .topbar-title { font-size: 14px; font-weight: 900; }
+    .topbar-sub { font-size: 12px; color: #9ca3af; margin-left: 10px; }
+
+    /* Color switcher in topbar */
+    .color-switcher { display: flex; align-items: center; gap: 8px; }
+    .color-switcher span { font-size: 11px; color: #9ca3af; }
+    .cswatch {
+      width: 22px; height: 22px; border-radius: 50%; cursor: pointer;
+      border: 2.5px solid transparent; transition: transform .15s;
+    }
+    .cswatch:hover { transform: scale(1.2); }
+    .cswatch.active { border-color: #1f2023; }
+
+    /* ── States grid ── */
+    .states-grid {
+      flex: 1;
+      display: grid;
+      grid-template-columns: repeat(4, 320px);
+      gap: 32px;
+      padding: 40px 32px;
+      overflow-x: auto;
+      align-items: start;
+    }
+
+    /* State label */
+    .state-col { display: flex; flex-direction: column; gap: 12px; }
+    .state-label {
+      font-size: 11px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.1em; color: #9ca3af;
+    }
+    .state-desc { font-size: 12px; color: #6b7280; line-height: 1.5; }
+
+    /* ═══════════════════════════════════
+       PANEL BASE
+    ═══════════════════════════════════ */
+    .panel {
+      background: #fff;
+      border-radius: 20px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+      display: flex; flex-direction: column;
+      width: 320px;
+      overflow: visible;
+    }
+
+    /* ── Panel header ── */
+    .ph {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 14px 10px;
+      border-bottom: 1px solid #EAEAEA;
+      flex-shrink: 0;
+    }
+    .ph-left { display: flex; align-items: center; gap: 8px; }
+    .ph-menu { display: flex; gap: 3px; padding: 5px 6px; border-radius: 7px; cursor: pointer; border: none; background: transparent; align-items: center; }
+    .ph-menu:hover { background: #EAEAEA; }
+    .ph-dot { width: 4px; height: 4px; border-radius: 50%; background: #1f2023; }
+
+    .ph-icon {
+      width: 28px; height: 28px; border-radius: 8px;
+      background: var(--p);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--on-p);
+      flex-shrink: 0;
+    }
+    .ph-icon svg { width: 16px; height: 16px; }
+
+    /* Context badge — WEBINAR-KC style: uppercase pill, #FFF3E8 bg, DARK text (#1F2023) */
+    .ph-context {
+      display: flex; align-items: center; gap: 4px;
+      background: #FFF3E8;
+      border-radius: 99px;
+      padding: 3px 10px;
+      font-size: 10px; color: #1F2023; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.05em;
+      max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .ph-context svg { flex-shrink: 0; width: 10px; height: 10px; color: #9A9A9A; }
+
+    .ph-close {
+      width: 32px; height: 32px; border-radius: 7px; border: none;
+      background: transparent; cursor: pointer; color: #1f2023;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .ph-close:hover { background: #EAEAEA; }
+    .ph-close svg { width: 24px; height: 24px; }
+
+    /* ── Panel body ── */
+    .pb {
+      flex: 1; overflow-y: auto; min-height: 0;
+      padding: 0;
+    }
+    .pb::-webkit-scrollbar { width: 3px; }
+    .pb::-webkit-scrollbar-thumb { background: #e5e7eb; border-radius: 3px; }
+
+    /* ── Panel footer ── */
+    .pf { flex-shrink: 0; }
+    .pf-input-row {
+      display: flex; align-items: flex-end; gap: 7px;
+      padding: 10px 12px 8px;
+    }
+    /* Input — KC Portal Library 2.1 rules:
+       Default: gray border #EAEAEA, focus: primary border, typing: shows × clear */
+    .pf-input-wrap {
+      flex: 1; background: #fff; border: 1.5px solid #EAEAEA;
+      border-radius: 16px; padding: 8px 12px;
+      transition: border-color .15s;
+    }
+    .pf-input-wrap:focus-within { border-color: var(--p); }
+    .pf-input {
+      width: 100%; border: none; outline: none; background: transparent;
+      font-size: 14px; font-family: 'Lato', sans-serif;
+      color: #1f2023; resize: none; line-height: 20px;
+    }
+    .pf-input::placeholder { color: #9A9A9A; }
+    /* Send — XS Primary icon button: 40×40, border-radius 14px */
+    .pf-send {
+      width: 40px; height: 40px; border-radius: 14px; border: none;
+      background: var(--p); color: var(--on-p); cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      transition: background .15s;
+    }
+    .pf-send:hover { background: color-mix(in srgb, var(--p) 80%, black); }
+    /* Disabled state: #FFF3E8 bg + muted icon — KC disabled primary pattern */
+    .pf-send:disabled { background: #FFF3E8; color: color-mix(in srgb, var(--p) 40%, white); cursor: default; }
+    .pf-send svg { width: 16px; height: 16px; }
+    .pf-note {
+      text-align: center; font-size: 10px; color: #9A9A9A;
+      padding: 0 12px 10px; line-height: 1.4;
+    }
+
+    /* ════════════════════════════════════
+       STATE 1 — EMPTY / WELCOME
+    ════════════════════════════════════ */
+    .empty-body {
+      display: flex; flex-direction: column; align-items: center;
+      padding: 28px 20px 20px;
+      gap: 0;
+    }
+    /* Empty icon — Primary 100 tint bg + primary icon (KC empty state pattern) */
+    .empty-icon {
+      width: 64px; height: 64px; border-radius: 18px;
+      background: #FFF3E8;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--p);
+      margin-bottom: 16px;
+    }
+    .empty-icon svg { width: 32px; height: 32px; }
+    /* H3 — 18px Semibold, lh 28px */
+    .empty-name { font-size: 18px; font-weight: 700; color: #1f2023; margin-bottom: 6px; line-height: 28px; }
+    /* Regular/14 — 14px Regular, lh 20px */
+    .empty-sub { font-size: 14px; font-weight: 400; color: #9A9A9A; text-align: center; margin-bottom: 24px; line-height: 20px; }
+
+    .prompts-heading { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: #9A9A9A; align-self: flex-start; margin-bottom: 8px; width: 100%; }
+    .prompts { display: flex; flex-direction: column; gap: 8px; width: 100%; }
+    /* Prompt chips — Secondary S button style: #FFF3E8 bg, dark text, radius 16px, no border */
+    .prompt-btn {
+      display: flex; align-items: center; gap: 10px;
+      background: #FFF3E8; border: none;
+      border-radius: 16px; padding: 12px 16px;
+      font-size: 14px; font-weight: 400; color: #1f2023; text-align: left;
+      cursor: pointer; transition: background .15s;
+      font-family: 'Lato', sans-serif; line-height: 20px;
+    }
+    .prompt-btn:hover { background: color-mix(in srgb, var(--p) 15%, white); }
+    .prompt-btn svg { width: 16px; height: 16px; color: var(--p); flex-shrink: 0; }
+
+    /* ════════════════════════════════════
+       STATE 2 — CONVERSATION
+    ════════════════════════════════════ */
+    .messages {
+      padding: 14px 12px;
+      display: flex; flex-direction: column; gap: 12px;
+    }
+    .msg { display: flex; flex-direction: column; gap: 3px; }
+    .msg.user { align-items: flex-end; }
+    .msg.bot  { align-items: flex-start; }
+
+    /* Bubbles — Regular/14: 14px Regular, lh 20px */
+    .bubble {
+      max-width: 88%; padding: 10px 14px;
+      font-size: 14px; font-weight: 400; line-height: 20px; border-radius: 16px;
+    }
+    /* User — secondary tint (#FFF3E8), same family as context chip. Primary orange reserved for buttons */
+    .msg.user .bubble { background: #FFF3E8; color: #1f2023; border-bottom-right-radius: 4px; }
+    /* Bot — plain white, no fill */
+    .msg.bot  .bubble { background: #fff; color: #1F2023; border-bottom-left-radius: 4px; }
+
+    /* Streaming */
+    .cursor { display: inline-block; width: 2px; height: 12px; background: #6b7280; margin-left: 1px; animation: blink .8s infinite; vertical-align: text-bottom; }
+
+    /* Rec cards inside bubble */
+    .rec-list { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
+    /* Rec card — vertical layout: title, subtitle, button stacked */
+    .rec-item {
+      background: #fff; border: 1.5px solid #EAEAEA; border-radius: 16px;
+      padding: 10px 12px; display: flex; flex-direction: column; gap: 4px;
+    }
+    /* KC rule: course title max 2 lines, then ellipsis */
+    .rec-item-title {
+      font-size: 14px; font-weight: 700; color: #1f2023;
+      overflow: hidden; display: -webkit-box;
+      -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+      line-height: 1.3;
+    }
+    .rec-item-why { font-size: 12px; font-weight: 400; color: #636367; margin-top: 2px; line-height: 18px; }
+    /* "Go to course" button — Secondary S, eye icon + black text, #FFF3E8 bg, sits at bottom of card */
+    .rec-item-link {
+      align-self: flex-start; background: #FFF3E8; color: #1f2023;
+      border: none; border-radius: 16px; font-size: 13px; font-weight: 400;
+      padding: 7px 12px; cursor: pointer; font-family: 'Lato', sans-serif;
+      white-space: nowrap; display: flex; align-items: center; gap: 5px;
+      margin-top: 4px; transition: background .15s;
+    }
+    .rec-item-link svg { width: 14px; height: 14px; flex-shrink: 0; }
+    .rec-item-link:hover { background: color-mix(in srgb, var(--p) 15%, white); }
+
+    .msg-time { font-size: 10px; color: #9A9A9A; padding: 0 3px; }
+
+    /* Typing — TNA style: "Thinking" label + inline primary dots */
+    .thinking-row { display: flex; align-items: center; gap: 6px; padding: 4px 0; }
+    .thinking-label { font-size: 14px; font-weight: 400; color: #9A9A9A; line-height: 20px; }
+    .typing-inline { display: flex; gap: 4px; align-items: center; }
+    .typing-inline span { width: 5px; height: 5px; border-radius: 50%; background: var(--p); animation: bounce 1.2s infinite; }
+    .typing-inline span:nth-child(2) { animation-delay: .2s; }
+    .typing-inline span:nth-child(3) { animation-delay: .4s; }
+
+    /* ════════════════════════════════════
+       STATE 3 — ERROR
+    ════════════════════════════════════ */
+    .error-body {
+      display: flex; flex-direction: column; align-items: center;
+      padding: 32px 24px 24px; gap: 12px; text-align: center;
+    }
+    /* Error icon — light red tint, KC error color #F0213E */
+    .error-icon {
+      width: 64px; height: 64px; border-radius: 18px;
+      background: #FDECEA; display: flex; align-items: center; justify-content: center;
+      color: #F0213E;
+    }
+    .error-icon svg { width: 28px; height: 28px; }
+    /* H3 — 18px Semibold */
+    .error-title { font-size: 18px; font-weight: 700; color: #1f2023; line-height: 28px; }
+    /* Regular/14 */
+    .error-sub { font-size: 14px; font-weight: 400; color: #636367; line-height: 20px; }
+    /* Primary button: radius 24px, padding 14px 24px, 16px Regular */
+    .error-retry {
+      margin-top: 8px;
+      background: var(--p); color: var(--on-p); border: none; border-radius: 24px;
+      font-size: 16px; font-weight: 400; padding: 14px 24px;
+      cursor: pointer; font-family: 'Lato', sans-serif;
+      transition: background .15s;
+    }
+    .error-retry:hover { background: color-mix(in srgb, var(--p) 80%, black); }
+
+    /* Inline error banner — KC static notification: icon + colored text, NO background */
+    .error-banner {
+      margin: 10px 14px 0;
+      display: flex; align-items: flex-start; gap: 8px;
+    }
+    .error-banner svg { color: #F0213E; flex-shrink: 0; margin-top: 2px; width: 14px; height: 14px; }
+    .error-banner-text { font-size: 14px; font-weight: 400; color: #F0213E; line-height: 20px; }
+    .error-banner-link { cursor: pointer; text-decoration: underline; }
+
+    /* ════════════════════════════════════
+       STATE 4 — LOADING (initial)
+    ════════════════════════════════════ */
+    .loading-body {
+      display: flex; flex-direction: column; align-items: center;
+      padding: 36px 24px; gap: 14px;
+    }
+    .loading-icon {
+      width: 60px; height: 60px; border-radius: 18px;
+      background: color-mix(in srgb, var(--p) 12%, white);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--p);
+      position: relative;
+    }
+    .loading-icon svg { width: 32px; height: 32px; opacity: 0.4; }
+    .loading-ring {
+      position: absolute; inset: -4px;
+      border-radius: 22px;
+      border: 2.5px solid transparent;
+      border-top-color: var(--p);
+      border-right-color: color-mix(in srgb, var(--p) 40%, transparent);
+      animation: spin 1s linear infinite;
+    }
+    .loading-text { font-size: 13px; color: #9ca3af; }
+
+    /* Skeleton lines */
+    .skeleton-messages { padding: 14px 12px; display: flex; flex-direction: column; gap: 14px; }
+    .sk-row { display: flex; flex-direction: column; gap: 6px; }
+    .sk-row.right { align-items: flex-end; }
+    .sk-line {
+      height: 12px; border-radius: 6px;
+      background: linear-gradient(90deg, #f3f4f6 25%, #e9eaec 50%, #f3f4f6 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+    }
+
+    /* ── Dropdown menu ── */
+    .dropdown {
+      position: absolute; top: 44px; left: 12px;
+      background: #fff; border: 1px solid #e5e7eb; border-radius: 10px;
+      box-shadow: 0 4px 16px rgba(0,0,0,.10);
+      overflow: hidden; z-index: 10; min-width: 140px;
+    }
+    .dropdown-item {
+      padding: 9px 14px; font-size: 13px; color: #374151; cursor: pointer;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .dropdown-item:hover { background: #f8f9fa; }
+    .dropdown-item svg { width: 14px; height: 14px; color: #1f2023; }
+    .dropdown-item.danger { color: #F0213E; }
+    .dropdown-item.danger svg { color: #F0213E; }
+    .dropdown-item.danger:hover { background: #FDECEA; }
+
+    /* ── Animations ── */
+    @keyframes bounce {
+      0%, 60%, 100% { transform: translateY(0); }
+      30% { transform: translateY(-4px); }
+    }
+    @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes shimmer {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    /* ── Annotations ── */
+    .annotations { display: flex; flex-direction: column; gap: 8px; }
+    .ann { display: flex; gap: 7px; align-items: flex-start; font-size: 11px; color: #6b7280; line-height: 1.5; }
+    .ann-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--p); flex-shrink: 0; margin-top: 4px; }
+
+    /* Bottom row for extra states */
+    .states-bottom {
+      display: grid;
+      grid-template-columns: repeat(4, 320px);
+      gap: 32px;
+      padding: 0 32px 40px;
+      overflow-x: auto;
+      align-items: start;
+    }
+    .divider {
+      height: 1px; background: #e5e7eb;
+      margin: 0 32px 32px;
+    }
+    .section-title {
+      padding: 0 32px 20px;
+      font-size: 11px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .1em; color: #9ca3af;
+    }
+
+    /* Overdue banner — KC static notification: icon + text, NO background fill */
+    .overdue-banner {
+      margin: 10px 14px 0;
+      display: flex; align-items: flex-start; gap: 8px; flex-shrink: 0;
+    }
+    .overdue-banner svg { color: var(--p); flex-shrink: 0; margin-top: 2px; width: 14px; height: 14px; }
+    .overdue-text { font-size: 14px; font-weight: 400; color: var(--p); line-height: 20px; }
+    .overdue-link { cursor: pointer; text-decoration: underline; }
+
+    /* Dropdown open panel positioning */
+    .panel-rel { position: relative; }
+
+    /* ════════════════════════════════════
+       STATE 9 — MINIMIZED / FAB
+    ════════════════════════════════════ */
+    /* Simulated portal page background */
+    .page-sim {
+      background: #eef0f3; border-radius: 16px;
+      border: 1px solid #e5e7eb;
+      width: 320px; height: 260px;
+      position: relative; overflow: hidden;
+      flex-shrink: 0;
+    }
+    .page-sim-nav {
+      background: #fff; border-bottom: 1px solid #e5e7eb;
+      height: 44px; display: flex; align-items: center; padding: 0 14px;
+      gap: 8px; flex-shrink: 0;
+    }
+    .page-sim-content {
+      padding: 14px 16px; display: flex; flex-direction: column; gap: 9px;
+    }
+    .page-sim-line {
+      height: 10px; border-radius: 6px; background: #dde0e4;
+    }
+
+    /* Floating Action Button */
+    .fab-wrap { position: absolute; bottom: 18px; right: 18px; }
+    .fab {
+      width: 56px; height: 56px; border-radius: 50%;
+      background: var(--p); color: var(--on-p);
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.22);
+      cursor: pointer; border: none; position: relative;
+      transition: transform .15s;
+    }
+    .fab:hover { transform: scale(1.07); }
+    .fab svg { width: 26px; height: 26px; }
+
+    /* Notification badge on FAB — for overdue state */
+    .fab-badge {
+      position: absolute; top: 1px; right: 1px;
+      width: 13px; height: 13px; border-radius: 50%;
+      background: #F0213E; border: 2px solid #eef0f3;
+    }
+
+    /* FAB label tooltip */
+    .fab-label {
+      position: absolute; right: 64px; top: 50%; transform: translateY(-50%);
+      background: #1f2023; color: #fff; font-size: 11px; font-weight: 700;
+      padding: 5px 10px; border-radius: 8px; white-space: nowrap;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.18); pointer-events: none;
+    }
+    .fab-label::after {
+      content: ''; position: absolute; right: -5px; top: 50%;
+      transform: translateY(-50%);
+      border: 5px solid transparent; border-right: none;
+      border-left-color: #1f2023;
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <!-- Top bar -->
+  <div class="topbar">
+    <div style="display:flex;align-items:center;">
+      <span class="topbar-title">AI Student Assistant — Panel States</span>
+      <span class="topbar-sub">All states · 320px panel · Neural Spark icon</span>
+    </div>
+    <div class="color-switcher">
+      <span>Portal color:</span>
+      <div class="cswatch active" style="background:#ff881a;" onclick="setColor('#ff881a','#fff',this)" title="KC default #ff881a"></div>
+      <div class="cswatch" style="background:#FFD900;border-color:#e5e7eb;" onclick="setColor('#FFD900','#1f2023',this)" title="Saudi Investment Bank #FFD900"></div>
+      <div class="cswatch" style="background:#1E3A5F;" onclick="setColor('#1E3A5F','#fff',this)" title="Navy #1E3A5F"></div>
+      <div class="cswatch" style="background:#0D9488;" onclick="setColor('#0D9488','#fff',this)" title="Teal #0D9488"></div>
+      <div class="cswatch" style="background:#7C3AED;" onclick="setColor('#7C3AED','#fff',this)" title="Purple #7C3AED"></div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       ROW 1: Main states
+  ══════════════════════════════════ -->
+  <div class="section-title" style="padding-top:32px;">Main states</div>
+  <div class="states-grid">
+
+    <!-- ─── STATE 1: EMPTY / WELCOME ─── -->
+    <div class="state-col">
+      <div class="state-label">1 · Empty / Welcome</div>
+      <div class="panel">
+        <!-- Header -->
+        <div class="ph">
+          <div class="ph-left">
+            <button class="ph-menu"><div class="ph-dot"></div><div class="ph-dot"></div><div class="ph-dot"></div></button>
+            <div class="ph-icon">
+              <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="2.2" fill="currentColor"/><line x1="12" y1="3" x2="12" y2="7.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><line x1="12" y1="16.5" x2="12" y2="21" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><line x1="16.5" y1="12" x2="21" y2="12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><line x1="3" y1="12" x2="7.5" y2="12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><line x1="15.3" y1="8.7" x2="17.7" y2="6.3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="8.7" y1="15.3" x2="6.3" y2="17.7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="8.7" y1="8.7" x2="7" y2="7" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><line x1="15.3" y1="15.3" x2="17" y2="17" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+            </div>
+            <div class="ph-context">Library</div>
+          </div>
+          <button class="ph-close">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+        <!-- Body -->
+        <div class="pb">
+          <div class="empty-body">
+            <div class="empty-icon">
+              <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="2.2" fill="currentColor"/><line x1="12" y1="3" x2="12" y2="7.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><line x1="12" y1="16.5" x2="12" y2="21" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><line x1="16.5" y1="12" x2="21" y2="12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><line x1="3" y1="12" x2="7.5" y2="12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><line x1="15.3" y1="8.7" x2="17.7" y2="6.3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="8.7" y1="15.3" x2="6.3" y2="17.7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="8.7" y1="8.7" x2="7" y2="7" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><line x1="15.3" y1="15.3" x2="17" y2="17" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+            </div>
+            <div class="empty-name">AI Student Assistant</div>
+            <div class="empty-sub">Ask me anything about your courses,<br>deadlines, or what to learn next.</div>
+            <div class="prompts-heading">Suggested for you</div>
+            <div class="prompts">
+              <button class="prompt-btn">What should I learn next?</button>
+              <button class="prompt-btn">What are my upcoming deadlines?</button>
+              <button class="prompt-btn">How do I complete this course faster?</button>
+            </div>
+          </div>
+        </div>
+        <!-- Footer -->
+        <div class="pf">
+          <div class="pf-input-row">
+            <div class="pf-input-wrap"><textarea class="pf-input" placeholder="Ask anything…" rows="1"></textarea></div>
+            <button class="pf-send" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>
+          </div>
+          <div class="pf-note">This is powered by AI and may make mistakes.</div>
+        </div>
+      </div>
+      <div class="annotations">
+        <div class="ann"><div class="ann-dot"></div>Shown on first open and after "Clear history"</div>
+        <div class="ann"><div class="ann-dot"></div>Context chip reflects current portal page (Library, Assignments, etc.)</div>
+        <div class="ann"><div class="ann-dot"></div>3 prompts adapt to current page type</div>
+        <div class="ann"><div class="ann-dot"></div>Send button disabled until user types</div>
+      </div>
+    </div>
+
+    <!-- ─── STATE 2: CONVERSATION + STREAMING ─── -->
+    <div class="state-col">
+      <div class="state-label">2 · Conversation + Streaming</div>
+      <div class="panel">
+        <div class="ph">
+          <div class="ph-left">
+            <button class="ph-menu"><div class="ph-dot"></div><div class="ph-dot"></div><div class="ph-dot"></div></button>
+            <div class="ph-icon">
+              <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="2.2" fill="currentColor"/><line x1="12" y1="3" x2="12" y2="7.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><line x1="12" y1="16.5" x2="12" y2="21" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><line x1="16.5" y1="12" x2="21" y2="12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><line x1="3" y1="12" x2="7.5" y2="12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><line x1="15.3" y1="8.7" x2="17.7" y2="6.3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="8.7" y1="15.3" x2="6.3" y2="17.7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="8.7" y1="8.7" x2="7" y2="7" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><line x1="15.3" y1="15.3" x2="17" y2="17" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+            </div>
+            <div class="ph-context">Library</div>
+          </div>
+          <button class="ph-close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+        </div>
+        <div class="pb">
+          <div class="messages">
+            <!-- User -->
+            <div class="msg user">
+              <div class="bubble">What should I learn next?</div>
+              <div class="msg-time">15:02</div>
+            </div>
+            <!-- Bot streaming response -->
+            <div class="msg bot">
+              <div class="bubble">
+                Based on your role and completed courses, here are my picks:
+                <div class="rec-list">
+                  <div class="rec-item">
+                    <div class="rec-item-title">Leadership Essentials</div>
+                    <div class="rec-item-why">Continues your management track, 20% done.</div>
+                    <button class="rec-item-link">Go to course</button>
+                  </div>
+                  <div class="rec-item">
+                    <div class="rec-item-title">Project Management Fundamentals</div>
+                    <div class="rec-item-why">Assigned, not started — high priority.</div>
+                    <button class="rec-item-link">Go to course</button>
+                  </div>
+                </div>
+              </div>
+              <div class="msg-time">15:02</div>
+            </div>
+            <!-- User 2 -->
+            <div class="msg user">
+              <div class="bubble">Tell me more about Leadership Essentials</div>
+              <div class="msg-time">15:03</div>
+            </div>
+            <!-- Streaming -->
+            <div class="msg bot">
+              <div class="bubble">Leadership Essentials covers core management skills including team motivation, delegation, and conflict resolution. You're already 20% through it — picking up from where you left off will take about 2.5 hours to complete<span class="cursor"></span></div>
+              <div class="msg-time">15:03</div>
+            </div>
+          </div>
+        </div>
+        <!-- Input disabled during streaming; send disabled (no text) -->
+        <div class="pf">
+          <div class="pf-input-row">
+            <div class="pf-input-wrap" style="opacity:0.6;pointer-events:none;"><textarea class="pf-input" placeholder="Ask anything…" rows="1" disabled></textarea></div>
+            <button class="pf-send" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>
+          </div>
+          <div class="pf-note">This is powered by AI and may make mistakes.</div>
+        </div>
+      </div>
+      <div class="annotations">
+        <div class="ann"><div class="ann-dot"></div>Blinking cursor shows active streaming</div>
+        <div class="ann"><div class="ann-dot"></div>Course recommendation cards appear inside the assistant bubble</div>
+        <div class="ann"><div class="ann-dot"></div>Send button active when input has text</div>
+        <div class="ann"><div class="ann-dot"></div>Input disabled while streaming (no interrupt in MVP)</div>
+      </div>
+    </div>
+
+    <!-- ─── STATE 3: THINKING / TYPING ─── -->
+    <div class="state-col">
+      <div class="state-label">3 · Thinking</div>
+      <div class="panel">
+        <div class="ph">
+          <div class="ph-left">
+            <button class="ph-menu"><div class="ph-dot"></div><div class="ph-dot"></div><div class="ph-dot"></div></button>
+            <div class="ph-icon">
+              <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="2.2" fill="currentColor"/><line x1="12" y1="3" x2="12" y2="7.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><line x1="12" y1="16.5" x2="12" y2="21" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><line x1="16.5" y1="12" x2="21" y2="12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><line x1="3" y1="12" x2="7.5" y2="12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><line x1="15.3" y1="8.7" x2="17.7" y2="6.3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="8.7" y1="15.3" x2="6.3" y2="17.7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="8.7" y1="8.7" x2="7" y2="7" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><line x1="15.3" y1="15.3" x2="17" y2="17" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+            </div>
+            <div class="ph-context">Assignments</div>
+          </div>
+          <button class="ph-close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+        </div>
+        <div class="pb">
+          <div class="messages">
+            <div class="msg user">
+              <div class="bubble">What are my upcoming deadlines?</div>
+              <div class="msg-time">15:10</div>
+            </div>
+            <!-- Thinking — TNA style: inline label + primary dots -->
+            <div class="msg bot">
+              <div class="thinking-row">
+                <span class="thinking-label">Thinking</span>
+                <div class="typing-inline"><span></span><span></span><span></span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="pf">
+          <div class="pf-input-row">
+            <div class="pf-input-wrap" style="opacity:0.6;pointer-events:none;"><textarea class="pf-input" placeholder="Ask anything…" rows="1" disabled></textarea></div>
+            <button class="pf-send" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>
+          </div>
+          <div class="pf-note">This is powered by AI and may make mistakes.</div>
+        </div>
+      </div>
+      <div class="annotations">
+        <div class="ann"><div class="ann-dot"></div>Three-dot bounce animation while waiting for first token</div>
+        <div class="ann"><div class="ann-dot"></div>"Thinking…" label distinguishes it from streaming state</div>
+        <div class="ann"><div class="ann-dot"></div>Input + send disabled until response completes (MVP)</div>
+        <div class="ann"><div class="ann-dot"></div>Context chip shows Assignments page</div>
+      </div>
+    </div>
+
+    <!-- ─── STATE 4: ERROR (full-panel) ─── -->
+    <div class="state-col">
+      <div class="state-label">4 · Error — full panel</div>
+      <div class="panel">
+        <div class="ph">
+          <div class="ph-left">
+            <button class="ph-menu"><div class="ph-dot"></div><div class="ph-dot"></div><div class="ph-dot"></div></button>
+            <div class="ph-icon" style="background:#FDECEA;color:#F0213E;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            </div>
+          </div>
+          <button class="ph-close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+        </div>
+        <div class="pb">
+          <div class="error-body">
+            <div class="error-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            </div>
+            <div class="error-title">Something went wrong</div>
+            <div class="error-sub">The assistant couldn't connect. This could be a temporary issue — please try again.</div>
+            <button class="error-retry">Try again</button>
+          </div>
+        </div>
+        <div class="pf">
+          <div class="pf-input-row">
+            <div class="pf-input-wrap" style="opacity:0.5;pointer-events:none;"><textarea class="pf-input" placeholder="Ask anything…" rows="1" disabled></textarea></div>
+            <button class="pf-send" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>
+          </div>
+          <div class="pf-note">This is powered by AI and may make mistakes.</div>
+        </div>
+      </div>
+      <div class="annotations">
+        <div class="ann"><div class="ann-dot"></div>Shown when backend is unreachable (network error / 5xx)</div>
+        <div class="ann"><div class="ann-dot"></div>Icon in header turns red to signal error state</div>
+        <div class="ann"><div class="ann-dot"></div>"Try again" resets to empty/welcome state</div>
+        <div class="ann"><div class="ann-dot"></div>Input disabled — no point accepting input without connection</div>
+      </div>
+    </div>
+
+  </div><!-- /states-grid row 1 -->
+
+  <div class="divider"></div>
+  <div class="section-title">Secondary states</div>
+
+  <!-- ══════════════════════════════════
+       ROW 2: Secondary states
+  ══════════════════════════════════ -->
+  <div class="states-bottom">
+
+    <!-- ─── STATE 5: INLINE ERROR (mid-conversation) ─── -->
+    <div class="state-col">
+      <div class="state-label">5 · Inline error — mid-conversation</div>
+      <div class="panel">
+        <div class="ph">
+          <div class="ph-left">
+            <button class="ph-menu"><div class="ph-dot"></div><div class="ph-dot"></div><div class="ph-dot"></div></button>
+            <div class="ph-icon"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="2.2" fill="currentColor"/><line x1="12" y1="3" x2="12" y2="7.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><line x1="12" y1="16.5" x2="12" y2="21" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><line x1="16.5" y1="12" x2="21" y2="12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><line x1="3" y1="12" x2="7.5" y2="12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><line x1="15.3" y1="8.7" x2="17.7" y2="6.3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="8.7" y1="15.3" x2="6.3" y2="17.7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="8.7" y1="8.7" x2="7" y2="7" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><line x1="15.3" y1="15.3" x2="17" y2="17" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg></div>
+            <div class="ph-context">Library</div>
+          </div>
+          <button class="ph-close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+        </div>
+        <!-- Error banner — KC static notification with warning triangle -->
+        <div class="error-banner">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          <div class="error-banner-text">
+            Couldn't get a response. <span class="error-banner-link">Retry →</span>
+          </div>
+        </div>
+        <div class="pb">
+          <div class="messages">
+            <div class="msg user">
+              <div class="bubble">What should I learn next?</div>
+              <div class="msg-time">15:07</div>
+            </div>
+            <div class="msg bot">
+              <div class="bubble">Leadership Essentials looks like a great next step based on your profile.</div>
+              <div class="msg-time">15:07</div>
+            </div>
+            <div class="msg user">
+              <div class="bubble">Tell me more about it</div>
+              <div class="msg-time">15:08</div>
+            </div>
+            <!-- Failed message -->
+            <div class="msg bot">
+              <!-- Failed — KC static notification: warning triangle, no bg -->
+              <div style="display:flex;align-items:flex-start;gap:8px;padding:0;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#F0213E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:3px;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                <span style="font-size:14px;font-weight:400;color:#F0213E;line-height:20px;">Connection was lost. <span style="cursor:pointer;text-decoration:underline;">Try again</span></span>
+              </div>
+              <div class="msg-time">15:08</div>
+            </div>
+          </div>
+        </div>
+        <!-- Input enabled (user can retry), send disabled (input is empty in this state) -->
+        <div class="pf">
+          <div class="pf-input-row">
+            <div class="pf-input-wrap"><textarea class="pf-input" placeholder="Ask anything…" rows="1"></textarea></div>
+            <button class="pf-send" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>
+          </div>
+          <div class="pf-note">This is powered by AI and may make mistakes.</div>
+        </div>
+      </div>
+      <div class="annotations">
+        <div class="ann"><div class="ann-dot"></div>Banner + failed bubble — conversation history preserved</div>
+        <div class="ann"><div class="ann-dot"></div>"Retry" in banner re-sends the last user message</div>
+        <div class="ann"><div class="ann-dot"></div>Input stays enabled — user can ask something else</div>
+      </div>
+    </div>
+
+    <!-- ─── STATE 6: INITIAL LOAD (skeleton) ─── -->
+    <div class="state-col">
+      <div class="state-label">6 · Initial load</div>
+      <div class="panel">
+        <div class="ph">
+          <div class="ph-left">
+            <button class="ph-menu"><div class="ph-dot"></div><div class="ph-dot"></div><div class="ph-dot"></div></button>
+            <div class="ph-icon">
+              <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="2.2" fill="currentColor"/><line x1="12" y1="3" x2="12" y2="7.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><line x1="12" y1="16.5" x2="12" y2="21" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><line x1="16.5" y1="12" x2="21" y2="12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><line x1="3" y1="12" x2="7.5" y2="12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><line x1="15.3" y1="8.7" x2="17.7" y2="6.3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="8.7" y1="15.3" x2="6.3" y2="17.7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="8.7" y1="8.7" x2="7" y2="7" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><line x1="15.3" y1="15.3" x2="17" y2="17" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+            </div>
+          </div>
+          <button class="ph-close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+        </div>
+        <!-- Skeleton body — spinning ring is on the header icon, body shows shimmer -->
+        <div class="pb">
+          <div class="skeleton-messages">
+            <div style="display:flex;flex-direction:column;align-items:center;padding:24px 0 16px;gap:10px;">
+              <div class="sk-line" style="width:120px;height:14px;border-radius:8px;"></div>
+              <div class="sk-line" style="width:180px;height:10px;"></div>
+              <div class="sk-line" style="width:160px;height:10px;"></div>
+            </div>
+            <div class="sk-row" style="padding:0 12px;">
+              <div class="sk-line" style="width:100%;"></div>
+              <div class="sk-line" style="width:100%;"></div>
+              <div class="sk-line" style="width:72%;"></div>
+            </div>
+            <div class="sk-row right" style="padding:8px 12px 0;align-items:flex-end;">
+              <div class="sk-line" style="width:55%;"></div>
+            </div>
+          </div>
+        </div>
+        <!-- No input in loading state -->
+      </div>
+      <div class="annotations">
+        <div class="ann"><div class="ann-dot"></div>Shown on first open while fetching session + user profile</div>
+        <div class="ann"><div class="ann-dot"></div>Spinning ring on header icon instead of full spinner overlay</div>
+        <div class="ann"><div class="ann-dot"></div>Skeleton lines shimmer for perceived progress</div>
+        <div class="ann"><div class="ann-dot"></div>Transitions to Empty/Welcome state once data is ready</div>
+      </div>
+    </div>
+
+    <!-- ─── STATE 7: WITH OVERDUE BANNER ─── -->
+    <div class="state-col">
+      <div class="state-label">7 · With overdue banner</div>
+      <div class="panel">
+        <div class="ph">
+          <div class="ph-left">
+            <button class="ph-menu"><div class="ph-dot"></div><div class="ph-dot"></div><div class="ph-dot"></div></button>
+            <div class="ph-icon"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="2.2" fill="currentColor"/><line x1="12" y1="3" x2="12" y2="7.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><line x1="12" y1="16.5" x2="12" y2="21" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><line x1="16.5" y1="12" x2="21" y2="12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><line x1="3" y1="12" x2="7.5" y2="12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><line x1="15.3" y1="8.7" x2="17.7" y2="6.3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="8.7" y1="15.3" x2="6.3" y2="17.7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="8.7" y1="8.7" x2="7" y2="7" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><line x1="15.3" y1="15.3" x2="17" y2="17" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg></div>
+            <div class="ph-context">Assignments</div>
+          </div>
+          <button class="ph-close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+        </div>
+        <!-- Overdue banner — KC static notification with warning triangle -->
+        <div class="overdue-banner">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          <div class="overdue-text">
+            1 overdue: Cybersecurity Awareness — due Apr 8.
+            <span class="overdue-link">View assignment →</span>
+          </div>
+        </div>
+        <div class="pb">
+          <div class="empty-body" style="padding-top:20px;">
+            <div class="empty-icon">
+              <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="2.2" fill="currentColor"/><line x1="12" y1="3" x2="12" y2="7.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><line x1="12" y1="16.5" x2="12" y2="21" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><line x1="16.5" y1="12" x2="21" y2="12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><line x1="3" y1="12" x2="7.5" y2="12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><line x1="15.3" y1="8.7" x2="17.7" y2="6.3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="8.7" y1="15.3" x2="6.3" y2="17.7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            </div>
+            <div class="empty-name">AI Student Assistant</div>
+            <div class="empty-sub">Ask me anything about your courses,<br>deadlines, or what to learn next.</div>
+            <div class="prompts-heading">Suggested for you</div>
+            <div class="prompts">
+              <button class="prompt-btn">What are my upcoming deadlines?</button>
+              <button class="prompt-btn">What should I learn next?</button>
+            </div>
+          </div>
+        </div>
+        <div class="pf">
+          <div class="pf-input-row">
+            <div class="pf-input-wrap"><textarea class="pf-input" placeholder="Ask anything…" rows="1"></textarea></div>
+            <button class="pf-send" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>
+          </div>
+          <div class="pf-note">This is powered by AI and may make mistakes.</div>
+        </div>
+      </div>
+      <div class="annotations">
+        <div class="ann"><div class="ann-dot"></div>Orange banner shown if ≥1 overdue assignment on panel open</div>
+        <div class="ann"><div class="ann-dot"></div>User can dismiss the banner (×) — reappears next session</div>
+        <div class="ann"><div class="ann-dot"></div>Deadline prompt floated to top of suggested list</div>
+        <div class="ann"><div class="ann-dot"></div>This replaces the proactive tooltip — info is in-panel only</div>
+      </div>
+    </div>
+
+    <!-- ─── STATE 8: ACTIVE INPUT ─── -->
+    <div class="state-col">
+      <div class="state-label">8 · Input active</div>
+      <div class="panel">
+        <div class="ph">
+          <div class="ph-left">
+            <button class="ph-menu"><div class="ph-dot"></div><div class="ph-dot"></div><div class="ph-dot"></div></button>
+            <div class="ph-icon"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="2.2" fill="currentColor"/><line x1="12" y1="3" x2="12" y2="7.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><line x1="12" y1="16.5" x2="12" y2="21" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><line x1="16.5" y1="12" x2="21" y2="12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><line x1="3" y1="12" x2="7.5" y2="12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><line x1="15.3" y1="8.7" x2="17.7" y2="6.3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="8.7" y1="15.3" x2="6.3" y2="17.7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="8.7" y1="8.7" x2="7" y2="7" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><line x1="15.3" y1="15.3" x2="17" y2="17" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg></div>
+            <div class="ph-context">Library</div>
+          </div>
+          <button class="ph-close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+        </div>
+        <div class="pb">
+          <div class="messages">
+            <div class="msg user">
+              <div class="bubble">What should I learn next?</div>
+              <div class="msg-time">15:02</div>
+            </div>
+            <div class="msg bot">
+              <div class="bubble">Based on your progress, I'd recommend continuing with Leadership Essentials — you're already 20% through it.</div>
+              <div class="msg-time">15:02</div>
+            </div>
+          </div>
+        </div>
+        <!-- Input with text typed, send button active -->
+        <div class="pf">
+          <div class="pf-input-row">
+            <div class="pf-input-wrap" style="border-color:var(--p);">
+              <textarea class="pf-input" rows="1" style="color:#1f2023;">Tell me more about it</textarea>
+            </div>
+            <button class="pf-send"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>
+          </div>
+          <div class="pf-note">This is powered by AI and may make mistakes.</div>
+        </div>
+      </div>
+      <div class="annotations">
+        <div class="ann"><div class="ann-dot"></div>Input border switches to primary color on focus</div>
+        <div class="ann"><div class="ann-dot"></div>Send button active when input has ≥1 character</div>
+        <div class="ann"><div class="ann-dot"></div>Enter sends, Shift+Enter adds newline</div>
+        <div class="ann"><div class="ann-dot"></div>Input grows up to 3 lines, then scrolls</div>
+      </div>
+    </div>
+
+    <!-- ─── STATE 9a: MINIMIZED — default ─── -->
+    <div class="state-col">
+      <div class="state-label">9a · Minimized — default</div>
+      <div class="page-sim">
+        <!-- Mock portal nav -->
+        <div class="page-sim-nav">
+          <div style="width:26px;height:26px;background:var(--p);border-radius:7px;flex-shrink:0;"></div>
+          <div style="width:90px;height:18px;background:#EAEAEA;border-radius:8px;margin-left:4px;"></div>
+          <div style="flex:1;"></div>
+          <div style="width:52px;height:22px;background:#EAEAEA;border-radius:10px;"></div>
+          <div style="width:68px;height:28px;background:var(--p);border-radius:14px;margin-left:8px;opacity:0.9;"></div>
+        </div>
+        <!-- Mock page content -->
+        <div class="page-sim-content">
+          <div class="page-sim-line" style="width:55%;"></div>
+          <div class="page-sim-line" style="width:80%;opacity:0.5;"></div>
+          <div class="page-sim-line" style="width:68%;opacity:0.35;"></div>
+          <div style="margin-top:6px;display:flex;gap:8px;">
+            <div style="width:90px;height:60px;background:#dde0e4;border-radius:10px;opacity:0.5;"></div>
+            <div style="width:90px;height:60px;background:#dde0e4;border-radius:10px;opacity:0.4;"></div>
+            <div style="width:90px;height:60px;background:#dde0e4;border-radius:10px;opacity:0.3;"></div>
+          </div>
+        </div>
+        <!-- FAB — default, no badge -->
+        <div class="fab-wrap">
+          <button class="fab">
+            <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="2.2" fill="currentColor"/><line x1="12" y1="3" x2="12" y2="7.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><line x1="12" y1="16.5" x2="12" y2="21" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><line x1="16.5" y1="12" x2="21" y2="12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><line x1="3" y1="12" x2="7.5" y2="12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><line x1="15.3" y1="8.7" x2="17.7" y2="6.3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="8.7" y1="15.3" x2="6.3" y2="17.7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="8.7" y1="8.7" x2="7" y2="7" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><line x1="15.3" y1="15.3" x2="17" y2="17" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+          </button>
+        </div>
+      </div>
+      <div class="annotations">
+        <div class="ann"><div class="ann-dot"></div>Default state: panel closed, button fixed bottom-right of viewport</div>
+        <div class="ann"><div class="ann-dot"></div>56×56px circle, shadow 0 4px 20px rgba(0,0,0,.22)</div>
+        <div class="ann"><div class="ann-dot"></div>Click → reopens panel, conversation history intact</div>
+        <div class="ann"><div class="ann-dot"></div>Rendered on all portal pages except course page</div>
+      </div>
+    </div>
+
+    <!-- ─── STATE 9b: MINIMIZED — with overdue badge ─── -->
+    <div class="state-col">
+      <div class="state-label">9b · Minimized — overdue badge</div>
+      <div class="page-sim">
+        <!-- Mock portal nav -->
+        <div class="page-sim-nav">
+          <div style="width:26px;height:26px;background:var(--p);border-radius:7px;flex-shrink:0;"></div>
+          <div style="width:90px;height:18px;background:#EAEAEA;border-radius:8px;margin-left:4px;"></div>
+          <div style="flex:1;"></div>
+          <div style="width:52px;height:22px;background:#EAEAEA;border-radius:10px;"></div>
+          <div style="width:68px;height:28px;background:var(--p);border-radius:14px;margin-left:8px;opacity:0.9;"></div>
+        </div>
+        <!-- Mock page content -->
+        <div class="page-sim-content">
+          <div class="page-sim-line" style="width:55%;"></div>
+          <div class="page-sim-line" style="width:80%;opacity:0.5;"></div>
+          <div class="page-sim-line" style="width:68%;opacity:0.35;"></div>
+          <div style="margin-top:6px;display:flex;gap:8px;">
+            <div style="width:90px;height:60px;background:#dde0e4;border-radius:10px;opacity:0.5;"></div>
+            <div style="width:90px;height:60px;background:#dde0e4;border-radius:10px;opacity:0.4;"></div>
+            <div style="width:90px;height:60px;background:#dde0e4;border-radius:10px;opacity:0.3;"></div>
+          </div>
+        </div>
+        <!-- FAB — with red overdue badge -->
+        <div class="fab-wrap">
+          <button class="fab">
+            <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="2.2" fill="currentColor"/><line x1="12" y1="3" x2="12" y2="7.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><line x1="12" y1="16.5" x2="12" y2="21" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><line x1="16.5" y1="12" x2="21" y2="12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><line x1="3" y1="12" x2="7.5" y2="12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><line x1="15.3" y1="8.7" x2="17.7" y2="6.3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="8.7" y1="15.3" x2="6.3" y2="17.7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="8.7" y1="8.7" x2="7" y2="7" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><line x1="15.3" y1="15.3" x2="17" y2="17" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+            <div class="fab-badge"></div>
+          </button>
+        </div>
+      </div>
+      <div class="annotations">
+        <div class="ann"><div class="ann-dot"></div>Red badge shown when ≥1 overdue assignment exists</div>
+        <div class="ann"><div class="ann-dot"></div>Badge is a 13px circle, #F0213E fill, white 2px border</div>
+        <div class="ann"><div class="ann-dot"></div>Click → opens panel with overdue banner visible (State 7)</div>
+        <div class="ann"><div class="ann-dot"></div>Badge disappears once panel is opened and session acknowledges it</div>
+      </div>
+    </div>
+
+  </div><!-- /states-bottom -->
+
+  <!-- ══════════════════════════════════
+       FLOWS
+  ══════════════════════════════════ -->
+  <div class="divider" style="margin-top:8px;"></div>
+  <div class="section-title">Flows</div>
+
+  <!-- ── FLOW: Clear conversation ── -->
+  <div style="padding: 0 32px 16px;">
+    <div style="font-size:12px;font-weight:700;color:#1f2023;margin-bottom:20px;">Clear conversation</div>
+    <div style="display:flex;align-items:flex-start;gap:24px;">
+
+      <!-- Step 1: dropdown open -->
+      <div class="state-col">
+        <div class="state-label">Step 1 · User opens ··· menu</div>
+        <div class="panel" style="position:relative;">
+          <div class="ph" style="position:relative;">
+            <div class="ph-left">
+              <button class="ph-menu"><div class="ph-dot"></div><div class="ph-dot"></div><div class="ph-dot"></div></button>
+              <div class="ph-icon"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="2.2" fill="currentColor"/><line x1="12" y1="3" x2="12" y2="7.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><line x1="12" y1="16.5" x2="12" y2="21" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><line x1="16.5" y1="12" x2="21" y2="12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><line x1="3" y1="12" x2="7.5" y2="12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><line x1="15.3" y1="8.7" x2="17.7" y2="6.3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="8.7" y1="15.3" x2="6.3" y2="17.7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="8.7" y1="8.7" x2="7" y2="7" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><line x1="15.3" y1="15.3" x2="17" y2="17" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg></div>
+              <div class="ph-context">Library</div>
+            </div>
+            <button class="ph-close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+            <!-- Dropdown open — static -->
+            <div class="dropdown" style="display:block;">
+              <div class="dropdown-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+                Clear conversation
+              </div>
+            </div>
+          </div>
+          <div class="pb">
+            <div class="messages">
+              <div class="msg user"><div class="bubble">What should I learn next?</div><div class="msg-time">15:02</div></div>
+              <div class="msg bot"><div class="bubble">Based on your role and completed courses, here are my picks:<div class="rec-list"><div class="rec-item"><div class="rec-item-title">Leadership Essentials</div><div class="rec-item-why">Continues your management track, 20% done.</div><button class="rec-item-link">Go to course</button></div></div></div><div class="msg-time">15:02</div></div>
+              <div class="msg user"><div class="bubble">Tell me more about it</div><div class="msg-time">15:03</div></div>
+              <div class="msg bot"><div class="bubble">Leadership Essentials covers core management skills including team motivation and conflict resolution.</div><div class="msg-time">15:03</div></div>
+            </div>
+          </div>
+          <div class="pf">
+            <div class="pf-input-row">
+              <div class="pf-input-wrap"><textarea class="pf-input" placeholder="Ask anything…" rows="1"></textarea></div>
+              <button class="pf-send" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>
+            </div>
+            <div class="pf-note">This is powered by AI and may make mistakes.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Arrow -->
+      <div style="display:flex;align-items:center;padding-top:52px;">
+        <svg width="40" height="24" viewBox="0 0 40 24" fill="none"><line x1="0" y1="12" x2="32" y2="12" stroke="#9A9A9A" stroke-width="1.5"/><polyline points="26,6 36,12 26,18" stroke="#9A9A9A" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+
+      <!-- Step 2: after clear -->
+      <div class="state-col">
+        <div class="state-label">Step 2 · After "Clear conversation"</div>
+        <div class="panel">
+          <div class="ph">
+            <div class="ph-left">
+              <button class="ph-menu"><div class="ph-dot"></div><div class="ph-dot"></div><div class="ph-dot"></div></button>
+              <div class="ph-icon"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="2.2" fill="currentColor"/><line x1="12" y1="3" x2="12" y2="7.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><line x1="12" y1="16.5" x2="12" y2="21" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><line x1="16.5" y1="12" x2="21" y2="12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><line x1="3" y1="12" x2="7.5" y2="12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><line x1="15.3" y1="8.7" x2="17.7" y2="6.3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="8.7" y1="15.3" x2="6.3" y2="17.7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="8.7" y1="8.7" x2="7" y2="7" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><line x1="15.3" y1="15.3" x2="17" y2="17" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg></div>
+              <div class="ph-context">Library</div>
+            </div>
+            <button class="ph-close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+          </div>
+          <div class="pb">
+            <div class="empty-body">
+              <div class="empty-icon"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="2.2" fill="currentColor"/><line x1="12" y1="3" x2="12" y2="7.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><line x1="12" y1="16.5" x2="12" y2="21" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><line x1="16.5" y1="12" x2="21" y2="12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><line x1="3" y1="12" x2="7.5" y2="12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><line x1="15.3" y1="8.7" x2="17.7" y2="6.3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="8.7" y1="15.3" x2="6.3" y2="17.7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="8.7" y1="8.7" x2="7" y2="7" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><line x1="15.3" y1="15.3" x2="17" y2="17" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg></div>
+              <div class="empty-name">AI Student Assistant</div>
+              <div class="empty-sub">Ask me anything about your courses,<br>deadlines, or what to learn next.</div>
+              <div class="prompts-heading">Suggested for you</div>
+              <div class="prompts">
+                <button class="prompt-btn">What should I learn next?</button>
+                <button class="prompt-btn">What are my upcoming deadlines?</button>
+                <button class="prompt-btn">How do I complete this course faster?</button>
+              </div>
+            </div>
+          </div>
+          <div class="pf">
+            <div class="pf-input-row">
+              <div class="pf-input-wrap"><textarea class="pf-input" placeholder="Ask anything…" rows="1"></textarea></div>
+              <button class="pf-send" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>
+            </div>
+            <div class="pf-note">This is powered by AI and may make mistakes.</div>
+          </div>
+        </div>
+        <div class="annotations">
+          <div class="ann"><div class="ann-dot"></div>Chat history cleared from memory — not recoverable</div>
+          <div class="ann"><div class="ann-dot"></div>Context chip stays — panel knows current portal page</div>
+          <div class="ann"><div class="ann-dot"></div>Same as first-open state — 3 suggested prompts shown</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── FLOW: Minimize / Reopen ── -->
+  <div style="padding: 0 32px 40px; margin-top: 8px;">
+    <div style="font-size:12px;font-weight:700;color:#1f2023;margin-bottom:20px;">Minimize &amp; Reopen panel</div>
+    <div style="display:flex;align-items:flex-start;gap:24px;flex-wrap:wrap;">
+
+      <!-- Step 1: Panel open with conversation -->
+      <div class="state-col">
+        <div class="state-label">Step 1 · Panel open</div>
+        <div class="panel">
+          <div class="ph">
+            <div class="ph-left">
+              <button class="ph-menu"><div class="ph-dot"></div><div class="ph-dot"></div><div class="ph-dot"></div></button>
+              <div class="ph-icon"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="2.2" fill="currentColor"/><line x1="12" y1="3" x2="12" y2="7.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><line x1="12" y1="16.5" x2="12" y2="21" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><line x1="16.5" y1="12" x2="21" y2="12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><line x1="3" y1="12" x2="7.5" y2="12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><line x1="15.3" y1="8.7" x2="17.7" y2="6.3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="8.7" y1="15.3" x2="6.3" y2="17.7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="8.7" y1="8.7" x2="7" y2="7" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><line x1="15.3" y1="15.3" x2="17" y2="17" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg></div>
+              <div class="ph-context">Library</div>
+            </div>
+            <!-- Close button highlighted -->
+            <button class="ph-close" style="background:#EAEAEA;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+          </div>
+          <div class="pb">
+            <div class="messages">
+              <div class="msg user"><div class="bubble">What should I learn next?</div><div class="msg-time">15:02</div></div>
+              <div class="msg bot"><div class="bubble">Leadership Essentials is a great next step — you're 20% through it already.</div><div class="msg-time">15:02</div></div>
+            </div>
+          </div>
+          <div class="pf">
+            <div class="pf-input-row">
+              <div class="pf-input-wrap"><textarea class="pf-input" placeholder="Ask anything…" rows="1"></textarea></div>
+              <button class="pf-send" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>
+            </div>
+            <div class="pf-note">This is powered by AI and may make mistakes.</div>
+          </div>
+        </div>
+        <div class="annotations">
+          <div class="ann"><div class="ann-dot"></div>User clicks × (close) to minimize the panel</div>
+        </div>
+      </div>
+
+      <!-- Arrow -->
+      <div style="display:flex;align-items:center;padding-top:52px;">
+        <svg width="40" height="24" viewBox="0 0 40 24" fill="none"><line x1="0" y1="12" x2="32" y2="12" stroke="#9A9A9A" stroke-width="1.5"/><polyline points="26,6 36,12 26,18" stroke="#9A9A9A" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+
+      <!-- Step 2: Minimized — FAB on page -->
+      <div class="state-col">
+        <div class="state-label">Step 2 · Minimized (FAB)</div>
+        <div class="page-sim">
+          <div class="page-sim-nav">
+            <div style="width:26px;height:26px;background:var(--p);border-radius:7px;flex-shrink:0;"></div>
+            <div style="width:90px;height:18px;background:#EAEAEA;border-radius:8px;margin-left:4px;"></div>
+            <div style="flex:1;"></div>
+            <div style="width:52px;height:22px;background:#EAEAEA;border-radius:10px;"></div>
+            <div style="width:68px;height:28px;background:var(--p);border-radius:14px;margin-left:8px;opacity:0.9;"></div>
+          </div>
+          <div class="page-sim-content">
+            <div class="page-sim-line" style="width:55%;"></div>
+            <div class="page-sim-line" style="width:80%;opacity:0.5;"></div>
+            <div class="page-sim-line" style="width:68%;opacity:0.35;"></div>
+          </div>
+          <!-- FAB with tooltip on hover -->
+          <div class="fab-wrap">
+            <div class="fab-label">AI Assistant</div>
+            <button class="fab">
+              <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="2.2" fill="currentColor"/><line x1="12" y1="3" x2="12" y2="7.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><line x1="12" y1="16.5" x2="12" y2="21" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><line x1="16.5" y1="12" x2="21" y2="12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><line x1="3" y1="12" x2="7.5" y2="12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><line x1="15.3" y1="8.7" x2="17.7" y2="6.3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="8.7" y1="15.3" x2="6.3" y2="17.7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="8.7" y1="8.7" x2="7" y2="7" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><line x1="15.3" y1="15.3" x2="17" y2="17" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+            </button>
+          </div>
+        </div>
+        <div class="annotations">
+          <div class="ann"><div class="ann-dot"></div>Panel hidden, FAB stays fixed bottom-right</div>
+          <div class="ann"><div class="ann-dot"></div>Conversation history kept in SvelteKit store (in-memory)</div>
+          <div class="ann"><div class="ann-dot"></div>Tooltip "AI Assistant" on hover</div>
+        </div>
+      </div>
+
+      <!-- Arrow -->
+      <div style="display:flex;align-items:center;padding-top:52px;">
+        <svg width="40" height="24" viewBox="0 0 40 24" fill="none"><line x1="0" y1="12" x2="32" y2="12" stroke="#9A9A9A" stroke-width="1.5"/><polyline points="26,6 36,12 26,18" stroke="#9A9A9A" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+
+      <!-- Step 3: Reopened — history preserved -->
+      <div class="state-col">
+        <div class="state-label">Step 3 · Reopened — history intact</div>
+        <div class="panel">
+          <div class="ph">
+            <div class="ph-left">
+              <button class="ph-menu"><div class="ph-dot"></div><div class="ph-dot"></div><div class="ph-dot"></div></button>
+              <div class="ph-icon"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="2.2" fill="currentColor"/><line x1="12" y1="3" x2="12" y2="7.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><line x1="12" y1="16.5" x2="12" y2="21" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><line x1="16.5" y1="12" x2="21" y2="12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><line x1="3" y1="12" x2="7.5" y2="12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><line x1="15.3" y1="8.7" x2="17.7" y2="6.3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="8.7" y1="15.3" x2="6.3" y2="17.7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="8.7" y1="8.7" x2="7" y2="7" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><line x1="15.3" y1="15.3" x2="17" y2="17" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg></div>
+              <!-- Context chip updated to reflect new page user navigated to -->
+              <div class="ph-context">Assignments</div>
+            </div>
+            <button class="ph-close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+          </div>
+          <div class="pb">
+            <div class="messages">
+              <!-- Previous conversation preserved -->
+              <div class="msg user"><div class="bubble">What should I learn next?</div><div class="msg-time">15:02</div></div>
+              <div class="msg bot"><div class="bubble">Leadership Essentials is a great next step — you're 20% through it already.</div><div class="msg-time">15:02</div></div>
+              <!-- User continues from new page -->
+              <div class="msg user"><div class="bubble">Actually, what are my deadlines?</div><div class="msg-time">15:09</div></div>
+            </div>
+          </div>
+          <div class="pf">
+            <div class="pf-input-row">
+              <div class="pf-input-wrap"><textarea class="pf-input" placeholder="Ask anything…" rows="1"></textarea></div>
+              <button class="pf-send" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>
+            </div>
+            <div class="pf-note">This is powered by AI and may make mistakes.</div>
+          </div>
+        </div>
+        <div class="annotations">
+          <div class="ann"><div class="ann-dot"></div>Full conversation history restored from store</div>
+          <div class="ann"><div class="ann-dot"></div>Context chip updates to current page (user navigated while minimized)</div>
+          <div class="ann"><div class="ann-dot"></div>History lost only on F5, tab close, or "Clear conversation"</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div><!-- /page -->
+
+<script>
+  function setColor(hex, onHex, el) {
+    document.documentElement.style.setProperty('--p', hex);
+    document.documentElement.style.setProperty('--on-p', onHex);
+    document.querySelectorAll('.cswatch').forEach(s => s.classList.remove('active'));
+    el.classList.add('active');
+  }
+
+  // ── Three-dots dropdown ──
+  const SPARK_SVG = `<svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="2.2" fill="currentColor"/><line x1="12" y1="3" x2="12" y2="7.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><line x1="12" y1="16.5" x2="12" y2="21" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><line x1="16.5" y1="12" x2="21" y2="12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><line x1="3" y1="12" x2="7.5" y2="12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><line x1="15.3" y1="8.7" x2="17.7" y2="6.3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="8.7" y1="15.3" x2="6.3" y2="17.7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="8.7" y1="8.7" x2="7" y2="7" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><line x1="15.3" y1="15.3" x2="17" y2="17" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>`;
+
+  const dropdownHTML = `
+  <div class="dropdown" style="display:none;">
+    <div class="dropdown-item" onclick="event.stopPropagation();this.closest('.dropdown').style.display='none'">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+      Clear conversation
+    </div>
+  </div>`;
+
+  document.querySelectorAll('.ph').forEach(ph => {
+    ph.style.position = 'relative';
+    ph.insertAdjacentHTML('beforeend', dropdownHTML);
+  });
+
+  document.querySelectorAll('.ph-menu').forEach(btn => {
+    btn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      const dropdown = this.closest('.ph').querySelector('.dropdown');
+      const isOpen = dropdown.style.display !== 'none';
+      document.querySelectorAll('.dropdown').forEach(d => d.style.display = 'none');
+      if (!isOpen) dropdown.style.display = 'block';
+    });
+  });
+
+  document.addEventListener('click', () => {
+    document.querySelectorAll('.dropdown').forEach(d => d.style.display = 'none');
+  });
+
+  // Show State 2 dropdown open for demo
+  setTimeout(() => {
+    const dd = document.querySelectorAll('.panel')[1]?.querySelector('.dropdown');
+    if (dd) dd.style.display = 'block';
+  }, 100);
+</script>
+</body>
+</html>
