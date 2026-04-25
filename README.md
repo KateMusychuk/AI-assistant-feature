@@ -26,9 +26,27 @@ Tech Stack: SvelteKit, PHP, Groq (Llama 3.3), SSE Streaming, SQL, Mixpanel.
 9 Languages supported for widget chrome (837 translation rows).
 Performance fix: Reduced TTFB from ~16s to 516ms (31x faster) by debugging PHP-FPM buffering.
 Zero downtime during integration with existing portal infrastructure.
+## 🎨 UI/UX Implementation
+
+**Main Interface & States:**
+- **Floating Button (Hover):** ![FAB](./design/screenshots/fab-button-with-hover-en.jpg)
+- **Empty State (Home):** ![Home Empty](./design/screenshots/home-empty-state-en.jpg)
+- **Empty State (Library):** ![Library Empty](./design/screenshots/library-empty-state-en.jpg)
+
+**Chat & Results:**
+- **Assignments Result:** ![Assignments](./design/screenshots/assignments-result-en.jpg)
+- **Library Result 1:** ![Lib Result 1](./design/screenshots/library-result-1-en.jpg)
+- **Library Result 2:** ![Lib Result 2](./design/screenshots/library-result-2-en.jpg)
+- **Thinking Indicator:** ![Thinking](./design/screenshots/library-thinking-en.jpg)
+
+**Localization & Branding:**
+- **Spanish Version:** ![Spanish](./design/screenshots/home-empty-state-es.jpg)
+- **Arabic RTL & Theme:** ![Arabic RTL](./design/screenshots/another-portal-color-and-portal-radius-ar.jpg)
+- **LMS Theme Customization:** ![LMS Theme](./design/screenshots/lms-set-color-and-radius.png)
+
 🎥 Demo & Documentation
 Watch the Demo:
-[👉 Link to your video file or YouTube/Vimeo]
+https://docs.google.com/presentation/d/1Dif44-R40kw_xUYOrvysvHrp9VgC_F-CfeNfgbZjr28/edit?slide=id.p#slide=id.p
 Read the Details:
 📄 Project Summary PDF
 🔗 Confluence BRD
